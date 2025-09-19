@@ -1,2 +1,2 @@
 # budgetwise
-A full-stack personal finance tracker built with Python (FastAPI) and React.
+A full-stack personal finance tracker built with React and Express.
