@@ -21,7 +21,7 @@ export default function validatePassword(password, confirmPassword) {
         invalidPasswordMessages.push("Passwords must match.");
 
         // 2) End function execution.
-        return { isValid: passwordValidity, errors: invalidPasswordMessages };
+        return { passwordValidity, invalidPasswordMessages };
     }
 
     // Check if password meets complexity requirements
@@ -36,5 +36,6 @@ export default function validatePassword(password, confirmPassword) {
     }
     
     // Return password validity state and messages.
-    return { isValid: passwordValidity, errors: invalidPasswordMessages };
+        return { passwordValidity, invalidPasswordMessages };
+
 }

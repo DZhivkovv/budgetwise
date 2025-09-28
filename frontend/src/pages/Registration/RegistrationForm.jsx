@@ -28,7 +28,7 @@ const RegistrationForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         // Check if the user password is valid (At least 8 characters - at least one uppercase letter, one lowercase letter, one number and one special symbol).
-        const [passwordValidity, invalidPasswordMessages] = validatePassword(formData.password, formData.confirmPassword)
+        const {passwordValidity, invalidPasswordMessages } = validatePassword(formData.password, formData.confirmPassword)
 
         // If the user password is valid, send POST request to registration endpoint with form data in order to register the user.
         if (passwordValidity === true)
