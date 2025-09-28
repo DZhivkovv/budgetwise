@@ -4,7 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import Homepage from './pages/Homepage';
 import AuthProvider from './context/AuthContext';
 import LoginPage from './pages/Login';
-import RegisterPage from './pages/Register';
+import RegistrationPage from './pages/Registration';
 
 function App() {
 
@@ -12,9 +12,8 @@ function App() {
       <>
       <AuthProvider>
         <Routes>
-            <Route path='/' element={<Homepage/>}/>
             <Route path='/auth/login' element={<LoginPage/>}/>
-            <Route path='/auth/register' element={<RegisterPage/>}/>
+            <Route path='/auth/register' element={<RegistrationPage/>}/>
         </Routes>
       </AuthProvider>
       </>
