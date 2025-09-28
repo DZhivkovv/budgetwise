@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import validatePassword from "../../utils/validatePassword";
 
-// RegisterForm component handles user registration form state and submission
-const RegisterForm = () => {
+// Component handles user registration form state and submission
+const RegistrationForm = () => {
     // State to store form input values
     const [formData, setFormData] = useState({
         firstName: '',
@@ -92,4 +92,4 @@ const RegisterForm = () => {
   )
 }
 
-export default RegisterForm
+export default RegistrationForm
