@@ -64,7 +64,19 @@ export async function authenticateUser(req,res)
 export async function registerUser(req, res)
 {
     // Get the user data from the registration form
-    const {firstName, lastName, age, email, password} = req.body;
+    const {firstName, lastName, age, email, password, confirmPassword} = req.body;
+    
+    // Check if password and confirm password values match
+    if (password != confirmPassword)
+    {
+        // If passwords do not match: 
+        // 1) Return 400 bad request
+        return res.status(400).json({ 
+            success: false, 
+            message: "Passwords do not match." 
+        });
+
+    }
 
     // Validate password strength
     // Must be at least 8 chars, contain uppercase, lowercase, number, and special char
@@ -82,7 +94,7 @@ export async function registerUser(req, res)
     try
     {
         // Create new user in the database with hashed password
-        const user = await User.create({
+        await User.create({
           firstName,
           lastName,
           age,
@@ -95,7 +107,24 @@ export async function registerUser(req, res)
     }
     catch (err)
     {
-        res.status(500).json({ success: false, message: 'Server error', error: err.message });
+        // Handle duplicate values error.
+        if (err.name === 'SequelizeUniqueConstraintError') {
+            return res.status(400).json({
+                success: false,
+                message: 'Email already exists. Please use a different one.'
+            });
+        }
+
+        // Handle bad field value error
+        if (err.name === 'SequelizeValidationError') {
+            return res.status(400).json({
+                success: false,
+                message: err.errors[0].message || 'Validation failed'
+            });
+        }
+
+        // Catch everything else
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 }
 
