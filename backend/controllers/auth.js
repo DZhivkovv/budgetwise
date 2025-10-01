@@ -15,6 +15,18 @@ export async function authenticateUser(req,res)
         // Get user email and password from request body
         const {email, password} = req.body;
 
+        // If email is not provided, return 400 Bad Request
+        if (!email)
+        {
+            return res.status(400).json({ success: false, message: 'Email is required' });
+        }
+
+        // If password is not provided, return 400 Bad Request
+        if (!password)
+        {
+            return res.status(400).json({ success: false, message: 'Password is required' });;
+        }
+
         // Find user by email in the database
         const user = await User.findOne({where: { email }});
         if (!user)
@@ -24,7 +36,7 @@ export async function authenticateUser(req,res)
         }
 
         // Compare provided password with hashed password in the database
-        const passwordsMatch = bcrypt.compareSync(password, user.password); 
+        const passwordsMatch = await bcrypt.compare(password, user.password);
         if (!passwordsMatch)
         {
             // If password does not match, return unauthorized response
@@ -41,7 +53,7 @@ export async function authenticateUser(req,res)
         // Store JWT token in HTTP-only cookie
         res.cookie("auth-token", token, {
             httpOnly: true,   
-            secure: false,   
+            secure: process.env.NODE_ENV === 'production',
             sameSite: "lax"   
         });
             
