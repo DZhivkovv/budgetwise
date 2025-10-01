@@ -130,10 +130,31 @@ export async function registerUser(req, res)
 
 
 /* Log out user (clear auth cookie) */
-export function logout(req, res)
-{
-    // Remove JWT cookie from the browser
-    res.status(202).clearCookie('auth-token').send('Cookie cleared.')
+export function logout(req, res) {
+    // Get JWT token from cookies
+    const token = req.cookies['auth-token'];
+
+    // If no token is present in the request, then the user is not authenticated
+    if (!token) {
+        return res.status(400).json({ success: false, message: 'Authentication required' });
+    }
+
+    try {
+        // Verify the token
+        jwt.verify(token, process.env.JWT_SECRET);
+
+        // If token is valid, clear the auth cookie and send response with success message
+        return res.status(202).clearCookie('auth-token').json({ 
+            success: true, 
+            message: 'Logged out successfully' 
+        });
+    } catch (err) {
+        // If token is invalid or expired:
+        return res.status(401).clearCookie('auth-token').json({ 
+            success: false, 
+            message: 'Invalid or expired token' 
+        });
+    }
 }
 
 
