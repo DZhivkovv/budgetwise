@@ -38,10 +38,22 @@ export default (sequelize, Sequelize) => {
         },
         password: {
             type: Sequelize.STRING(100), // bcrypt hashes are ~60 chars, 100 gives safe buffer
-            allowNull: false
+            allowNull: false,
+            validate: {
+                len: [8, 100]
+            }
+        },
+        budget: {
+            type: Sequelize.DECIMAL(10, 2),
+            allowNull: true,
+        },
+        currency: {
+            type: Sequelize.ENUM("USD", "EUR", "BGN"),
+            allowNull: true,
         }
 
     });
+    
     // Return the User model to be used elsewhere in the app
     return User;
 };
