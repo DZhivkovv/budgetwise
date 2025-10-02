@@ -1,6 +1,7 @@
 // A function that validates the data the user provided on registration.
 function validateRegistrationData(data) {
     const { firstName, lastName, age, email, password, confirmPassword } = data;
+    const parsedAge = Number(age);
 
     // Check for correct field types 
     if (typeof firstName !== 'string' || typeof lastName !== 'string' || typeof age !== 'number' || typeof email !== 'string' ||
