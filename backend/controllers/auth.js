@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 dotenv.config();
 import jwt from 'jsonwebtoken'
+import validateRegistrationData from "../utils/validateRegistrationData.js";
 
 // Import User model from the database
 const User = db.User;
@@ -77,26 +78,15 @@ export async function registerUser(req, res)
 {
     // Get the user data from the registration form
     const {firstName, lastName, age, email, password, confirmPassword} = req.body;
-    
-    // Check if password and confirm password values match
-    if (password != confirmPassword)
-    {
-        // If passwords do not match: 
-        // 1) Return 400 bad request
-        return res.status(400).json({ 
-            success: false, 
-            message: "Passwords do not match." 
-        });
-
+    const registrationData = {
+        firstName, lastName, age, email, password, confirmPassword
     }
 
-    // Validate password strength
-    // Must be at least 8 chars, contain uppercase, lowercase, number, and special char
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/.test(password)) {
-        return res.status(400).json({ 
-            success: false, 
-            message: "Password must be at least 8 chars and include uppercase, lowercase, number, and special character." 
-        });
+    const {valid, message} =  validateRegistrationData(registrationData);
+    if (valid == false)
+    {
+        // Send failure response if registration is not successful
+        res.status(400).json({ success:false, message });
     }
 
     // Hash the password using bcrypt
