@@ -43,15 +43,6 @@ export default (sequelize, Sequelize) => {
                 len: [8, 100]
             }
         },
-        budget: {
-            type: Sequelize.DECIMAL(10, 2),
-            allowNull: true,
-        },
-        currency: {
-            type: Sequelize.ENUM("USD", "EUR", "BGN"),
-            allowNull: true,
-        }
-
     });
     
     // Return the User model to be used elsewhere in the app

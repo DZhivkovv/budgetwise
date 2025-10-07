@@ -17,6 +17,8 @@ db.sequelize = sequelize;     // Save Sequelize instance
 
 // Initialize the User model and attach it to db object
 db.User = UserModel(sequelize, Sequelize);
+// Initialize the Budget model and attach it to db object
+db.Budget = BudgetModel(sequelize, Sequelize);
 
 // Export the db object so it can be used elsewhere (controllers, routes, etc.)
 export default db;
