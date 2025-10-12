@@ -1,6 +1,7 @@
 import dbConfig from "../config/db.config.js";
 import { Sequelize } from "sequelize"; 
 import UserModel from "./user.model.js";
+import BudgetModel from "./budget.model.js";
 
 // Create a Sequelize instance using configuration from db.config.js
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
