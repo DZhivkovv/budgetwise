@@ -5,7 +5,9 @@ dotenv.config();
 import cors from 'cors';
 import cookieParser from "cookie-parser";
 import db from './models/index.js';
-import authRoutes from './routes/auth.js'
+
+import authRoutes from './routes/auth.js';
+import budgetRoutes from './routes/budget.js';
 
 // Create an Express application instance
 const app = express();
@@ -41,3 +43,5 @@ db.sequelize.sync({ alter: true })
 
 // Register authentication-related routes under /auth path
 app.use('/auth', authRoutes);
+// Register budget-related routes under /budget path
+app.use('/budget', budgetRoutes);
