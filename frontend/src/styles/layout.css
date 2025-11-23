@@ -117,7 +117,7 @@
  * RESPONSIVE LAYOUT (Max Width 900px)
  * ====================================
  */
-@media (max-width: 900px) {
+@media (max-width: 1250px) {
   
   /*
    * .g_two-section-container:
@@ -126,6 +126,7 @@
   .g_two-section-container 
   {
     flex-direction: column;
+    justify-content: center;
   }
 
   /* On small screens, the left section takes full width. */
