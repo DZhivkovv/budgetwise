@@ -1,0 +1,42 @@
+/*
+ * --------------------------------
+ * GLOBAL STYLES FOR IMAGES
+ * --------------------------------
+ * This file contains generic styles that can be applied
+ * to images across the application.
+*/
+
+
+/*
+ * ====================================
+ * LOGO STYLES
+ * ====================================
+*/
+
+/* A logo */
+.g_logo 
+{
+  width: 160px;
+}
+
+
+/*
+ * ====================================
+ * ANIMATED IMAGES
+ * ====================================
+*/
+
+/* A floating image */
+.g_floating-image 
+{
+  object-fit: contain;
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Animation of floating image */
+@keyframes float 
+{
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+  100% { transform: translateY(0px); }
+}

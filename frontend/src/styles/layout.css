@@ -1,0 +1,145 @@
+/*
+ * --------------------------------
+ * GLOBAL LAYOUT & UTILITY STYLES
+ * --------------------------------
+ * This file contains classes for common layout patterns.
+ * 
+*/
+
+/*
+ * ====================================
+ * FLEX LAYOUT
+ * ====================================
+*/
+
+/* A simple flex container that doesn't center its child elements neither horizontally nor vertically. */
+.g_flex-container 
+{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* A modifier class to horizontally center the flex items inside a .g_flex-container. */
+.g_flex-container--justify-content-center
+{
+  justify-content: center;
+}
+
+/* A modifier class to vertically center the flex items inside a .g_flex-container. */
+.g_flex-container--align-items-center
+{
+    align-items: center;
+}
+
+/* A class that centers items perfectly both horizontally and vertically. */
+.g_flex-center-all 
+{
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+}
+
+
+/*
+ * ====================================
+ * SECTIONS LAYOUTS
+ * ====================================
+*/
+
+/* A class that acts as a wrapper for pages split into distinct left and right panels. */
+.g_two-section-container
+{
+  height: 100vh;
+  display: flex;
+  overflow: hidden;    
+}
+
+/* A class that styles the left panel of a page split into left and right panels. */
+.g_left-section
+{
+  width: 35%;
+  display: flex;
+  align-items: center;
+}
+
+/* A class that styles the right panel of a page split into left and right panels. */
+.g_right-section 
+{
+  width: 65%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: linear-gradient(135deg, #d8e9ff, #bcdcff);
+}
+
+
+/*
+ * ====================================
+ * WIDTH UTILITY CLASSES
+ * ====================================
+*/
+
+/* A utility class for setting an element's width to 25%. */
+.g_width-25
+{
+  width: 25%;
+}
+
+/* A utility class for setting an element's width to 50%. */
+.g_width-50
+{
+  width:50%;
+}
+
+/* A utility class for setting an element's width to 60%. */
+.g_width-60
+{
+  width:60%;
+}
+
+/* A utility class for setting an element's width to 75%. */
+.g_width-75
+{
+  width: 75%;
+}
+
+/* A utility class for setting an element's width to 100%. */
+.g_width-100
+{
+  width: 100%;
+}
+
+
+/*
+ * ====================================
+ * RESPONSIVE LAYOUT (Max Width 900px)
+ * ====================================
+ */
+@media (max-width: 900px) {
+  
+  /*
+   * .g_two-section-container:
+   * PURPOSE: On small screens, changes the layout from side-by-side columns to stacked rows.
+   */
+  .g_two-section-container 
+  {
+    flex-direction: column;
+  }
+
+  /* On small screens, the left section takes full width. */
+  .g_left-section 
+  {
+    width: 100%;
+    height: auto;
+    padding: 40px 20px;
+  }
+
+  /* On small screens, hides the right section. */
+  .g_right-section 
+  {
+    display: none;
+  }
+
+}
