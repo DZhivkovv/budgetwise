@@ -1,0 +1,74 @@
+/*
+ * -------------------------------------------------------
+ * GLOBAL TYPOGRAPHY STYLES
+ * -------------------------------------------------------
+ * This file contains styles for headings, subtitles, links, etc ...
+*/
+
+ 
+/*
+ * ====================================
+ * TEXT ALIGNMENT UTILITY
+ * ====================================
+ */
+
+/* A container that centers the text inside. */
+.g_text-center {
+  text-align: center;
+}
+
+
+/*
+ * ====================================
+ * TITLES & HEADINGS
+ * ====================================
+ */
+
+/* Main page title. */
+.g_title {
+  color: #1a1a1a;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.2; /* Improves readability and spacing */
+}
+
+
+/*
+ * ====================================
+ * SUBTITLES & HELPER TEXT
+ * ====================================
+ */
+
+/* Secondary to the title text that provides context */
+.g_subtitle {
+  color: #666;
+  font-size: 15px;
+  margin-top: 8px;
+  margin-bottom: 18px;
+}
+
+
+/*
+ * ====================================
+ * LINKS
+ * ====================================
+ */
+
+/* 
+  Styles for links in the app. 
+  Note: The styles do not apply to links in navigation bar.
+*/
+.g_link {
+  margin-top: 5px;
+  color: #4197be;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* 
+  Styles for links on mouse hover. 
+  Note: The styles do not apply to links in navigation bar.
+*/
+.g_link:hover {
+  text-decoration: underline;
+}
