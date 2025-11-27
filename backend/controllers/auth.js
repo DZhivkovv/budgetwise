@@ -168,7 +168,7 @@ export async function checkIfUserIsLoggedIn(req, res)
     if (!token)
     {
         // If no token, user is not logged in
-        return res.status(401).json({ success: false, message: "Unauthorized" });
+        return res.status(200).json({ success: false, message: "Unauthorized" });
     }
 
     try
