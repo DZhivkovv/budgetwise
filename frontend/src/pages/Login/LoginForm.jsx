@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
 
+// Global CSS styles.
+import '../../styles/forms.css';
+import '../../styles/layout.css';
+
 // LoginForm component manages login form state and submission
 const LoginForm = () => {    
     // A react router dom hook used for in-app navigation
@@ -45,39 +49,38 @@ const LoginForm = () => {
             // If the user login fails:
             // 1) Reset auth state.
             setIsLoggedIn(false);
-
-            // 1) Log the error.
-            console.error(error);
         }
     }
 
   return (
     // Form element with submit handler
     <form onSubmit={handleSubmit}>
-        <div>
-            {/* Email input field */}
-            <label>Email: </label>
+        {/* Email input field */}
+        <div className="g_flex-container">
             <input 
                 type='email' 
-                name='email' 
+                name='email'
+                className='g_form__input' 
+                placeholder='Email' 
                 onChange={handleChange}                
                 required
-            />
+                />
         </div>
 
-        <div>
+        <div className="g_flex-container">
             {/* Password input field */}
-            <label>Password:</label>
             <input 
                 type='password' 
                 name='password' 
+                className='g_form__input' 
+                placeholder="Password"
                 onChange={handleChange} 
                 required
             />
         </div>
 
         {/* Submit button */}
-        <button>Login</button>
+        <button className="g_form__submit">Login</button>
     </form>
   )
 }

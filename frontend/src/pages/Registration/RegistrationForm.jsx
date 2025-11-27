@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
+// Utility functions
 import validatePassword from "../../utils/validatePassword";
+// Global CSS styles.
+import '../../styles/forms.css'
 
 // Component handles user registration form state and submission
 const RegistrationForm = () => {
@@ -37,8 +41,9 @@ const RegistrationForm = () => {
                 const res = await axios.post("http://localhost:3000/auth/register", formData);
 
                 // If the user is registered successfully, redirect him to the login page.
-                if (res.status === 201) {
-                    navigate("/auth/login");
+                if (res.status === 201)
+                {
+                    navigate("/login");
                 }
             } 
             catch (err) {
@@ -50,44 +55,27 @@ const RegistrationForm = () => {
   return (
     // Form element with submit handler
     <form onSubmit={handleSubmit}>
-        <div>
-            {/* First name input */}
-            <label>First name</label>
-            <input type='text' name='firstName' onChange={handleChange} required/>
-        </div>
+            
+        {/* First name input */}
+        <input className="g_form__input" name='firstName' placeholder="First Name" onChange={handleChange} required/>
 
-        <div>
-            {/* Last name input */}
-            <label>Last name</label>
-            <input type='text' name='lastName' onChange={handleChange} required/>
-        </div>
+        {/* Last name input */}
+        <input className="g_form__input" name='lastName' placeholder="Last Name" onChange={handleChange} required/>
 
-        <div>
-            {/* Age input */}
-            <label>Age</label>
-            <input type='number' name='age' min={16} onChange={handleChange} required/>
-        </div>
+        {/* Age input */}
+        <input className="g_form__input" type='number' name='age' min={16} placeholder="Age" onChange={handleChange} required/>
 
-        <div>
-            {/* Email input */}
-            <label>Email</label>
-            <input type='text' name='email' onChange={handleChange} required/>
-        </div>
+        {/* Email input */}
+        <input className="g_form__input" type='text' name='email' placeholder="Email" onChange={handleChange} required/>
 
-        <div>
-            {/* Password input */}
-            <label>Password</label>
-            <input type='password' name='password' onChange={handleChange} required/>
-        </div>
+        {/* Password input */}
+        <input className="g_form__input" type='password' name='password' placeholder="Password" onChange={handleChange} required/>
 
-        <div>
-            {/* Confirm password input */}
-            <label>Confirm Password</label>
-            <input type='password' name='confirmPassword' onChange={handleChange} required/>
-        </div>
+        {/* Confirm password input */}
+        <input className="g_form__input" type='password' name='confirmPassword' placeholder="Confirm Password" onChange={handleChange} required/>
 
         {/* Submit button */}
-        <button type="submit">Register</button>
+        <button className="g_form__submit" type="submit">Create Account</button>
     </form>
   )
 }
