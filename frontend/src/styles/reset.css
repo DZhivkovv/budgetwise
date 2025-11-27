@@ -1,0 +1,65 @@
+/*
+ * --------------------------------
+ * RESET STYLESHEET
+ * --------------------------------
+ */
+
+/* Set border-box globally */
+html {
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+/* Reset margin, padding, height */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Default body font and smoothing */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+               'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+               sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Default monospace font for code tags */
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+               monospace;
+}
+
+/* Remove default list styles */
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Remove default anchor styles */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Make images easier to work with */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Buttons reset */
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}

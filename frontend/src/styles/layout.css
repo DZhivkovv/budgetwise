@@ -46,14 +46,6 @@
  * ====================================
 */
 
-/* A class that acts as a wrapper for pages split into distinct left and right panels. */
-.g_two-section-container
-{
-  height: 100vh;
-  display: flex;
-  overflow: hidden;    
-}
-
 /* A class that styles the left panel of a page split into left and right panels. */
 .g_left-section
 {
@@ -74,7 +66,41 @@
   background: linear-gradient(135deg, #d8e9ff, #bcdcff);
 }
 
+/*
+ * ====================================
+ * HEIGHT UTILITY CLASSES
+ * ====================================
+*/
 
+/* A utility class for setting an element's heightto 10%. */
+.g_height-10
+{
+  height: 10%;
+}
+
+/* A utility class for setting an element's heightto 30%. */
+.g_height-30
+{
+  height: 30%;
+}
+
+/* A utility class for setting an element's heightto 50%. */
+.g_height-50
+{
+  height: 50%;
+}
+
+/* A utility class for setting an element's heightto 70%. */
+.g_height-70
+{
+  height: 70%;
+}
+
+/* A utility class for setting an element's heightto 90%. */
+.g_height-90
+{
+  height: 90%;
+}
 /*
  * ====================================
  * WIDTH UTILITY CLASSES
@@ -118,16 +144,6 @@
  * ====================================
  */
 @media (max-width: 1250px) {
-  
-  /*
-   * .g_two-section-container:
-   * PURPOSE: On small screens, changes the layout from side-by-side columns to stacked rows.
-   */
-  .g_two-section-container 
-  {
-    flex-direction: column;
-    justify-content: center;
-  }
 
   /* On small screens, the left section takes full width. */
   .g_left-section 
