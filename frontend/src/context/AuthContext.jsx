@@ -1,7 +1,10 @@
 import { useState, useEffect, createContext } from 'react'
 import axios from 'axios';
 
-export const AuthContext = createContext(false);
+export const AuthContext = createContext({
+    isLoggedIn: false, 
+    setIsLoggedIn: () => {} 
+});
 
 export default function AuthProvider({children}) {
     // A state that tracks if the user is logged in.
