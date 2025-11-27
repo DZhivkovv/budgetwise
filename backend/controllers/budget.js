@@ -18,7 +18,7 @@ export async function checkIfUserHasBudget(req,res)
       // If the id can not be extracted from the token, the function execution stops here.
       if (!success)
       {
-          return res.status(status).json({success:false, message });
+          return res.status(status).json({ success:false, message });
       }
 
       // Find if the user already has a budget using his ID.
@@ -27,7 +27,11 @@ export async function checkIfUserHasBudget(req,res)
       const userHasBudget = userBudget != null; 
 
       // Send a 200 OK response. 
-      return res.status(200).json({ success: true, hasBudget: userHasBudget });
+      return res.status(200).json({ 
+        success: true, 
+        hasBudget: userHasBudget, 
+        budget: userBudget ? {amount: userBudget.amount, currency: userBudget.currency} : null 
+      });
     }
     catch(error)
     {
@@ -67,7 +71,6 @@ export async function addUserBudget(req, res) {
     // Get the user's budget from the request body and parse it.
     const { budget, currency } = req.body;
     const parsedBudget = parseFloat(budget);
-    console.log(parsedBudget);
 
     // Check if the user's budget and currency input is valid
     const budgetValidityData = validateUserBudget(parsedBudget,currency);
