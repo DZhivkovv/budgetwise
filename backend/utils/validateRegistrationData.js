@@ -4,7 +4,7 @@ function validateRegistrationData(data) {
     const parsedAge = Number(age);
 
     // Check for correct field types 
-    if (typeof firstName !== 'string' || typeof lastName !== 'string' || typeof age !== 'number' || typeof email !== 'string' ||
+    if (typeof firstName !== 'string' || typeof lastName !== 'string' || typeof parsedAge !== 'number' || typeof email !== 'string' ||
         typeof password !== 'string' || typeof confirmPassword !== 'string') 
     {
         return { valid: false, message: "Wrong field datatype!" };
