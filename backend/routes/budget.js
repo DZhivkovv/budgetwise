@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { checkIfUserHasBudget, addUserBudget, getAllBudgets, editUserBudget } from '../controllers/budget.js';
+import { checkIfUserHasBudget, addUserBudget, getAllBudgets, editUserBudget, deleteAllBudgets } from '../controllers/budget.js';
 
 const router = express.Router();
 
@@ -11,7 +11,8 @@ router.post('/', addUserBudget);
 // Edit user budget route: handles PATCH requests to /budget
 router.patch('/', editUserBudget);
 
-// Add user budget route: handles GET requests to /budget/add
 // router.get('/getAll', getAllBudgets);
+// router.get('/delete', deleteAllBudgets);
+
 
 export default router;
