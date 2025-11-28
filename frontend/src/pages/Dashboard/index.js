@@ -1,6 +1,6 @@
-import React from 'react'
 import useCheckIfUserHasMonthlyBudget from '../../hooks/useCheckIfUserHasMonthlyBudget';
 import BudgetForm from '../../components/BudgetForm';
+import ExpenseForm from '../../components/ExpenseForm';
 
 // A dashboard page for budget and expenses management.
 const DashboardPage = () => {
@@ -13,7 +13,7 @@ const DashboardPage = () => {
   // Budget-related variables:
   // If the user has a budget, the workmode will be 'Edit' - editing the budget. Otherwise, the budget will be 'Add' - adding a budget.
   // Decides if form for budget adding or editing will be rendered.
-  const budgetWorkmode = hasBudget === false ? 'add' : 'edit';
+  const budgetFormWorkmode = hasBudget === false ? 'add' : 'edit';
   // If the user has a budget, this variable will contain the budget's amount. Otherwise, the value will be null.
   const budgetAmount = budget ? budget.amount : null;
   // If the user has a budget, this variable will contain the budget's currency. Otherwise, the value will be null.
@@ -22,7 +22,10 @@ const DashboardPage = () => {
     return (
     <div>
       {/* A form for adding/editing a budget (depending on whether the user has a budget) */}
-      <BudgetForm mode={budgetWorkmode} budget={budgetAmount} currency={budgetCurrency}/>
+      <BudgetForm mode={budgetFormWorkmode} budget={budgetAmount} currency={budgetCurrency}/>
+
+      {/* If the user has a budget, render a form for adding an expense. */}
+      { hasBudget && <ExpenseForm mode='add'/> }
     </div>
   )
 }
