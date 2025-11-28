@@ -25,7 +25,8 @@ const ExpenseForm = ({ mode, data }) => {
 
     setExpenseData((prev) => ({
       ...prev,
-      [name]: name === "categoryId" ? Number(value) : type === "checkbox" ? checked : value,
+      [name]: name === "categoryId" ? Number(value) : 
+      type === "checkbox" ? checked : value,
     }));
   };
 
@@ -34,16 +35,22 @@ const ExpenseForm = ({ mode, data }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const payload = {
+      ...expenseData,
+      amount: Number(expenseData.amount),
+      categoryId: Number(expenseData.categoryId)
+    };
+
     // If the workmode is 'Add', a post request will be sent in order to add an expense
     if (mode === "add") 
     {
-      await axios.post("http://localhost:3000/expense", expenseData, {
+      await axios.post("http://localhost:3000/expense", payload, {
         withCredentials: true,
       });
     }
     // If the workmode is 'Edit', a patch request will be sent in order to update an expense
     else {
-      await axios.patch("http://localhost:3000/expense", expenseData, {
+      await axios.patch("http://localhost:3000/expense", payload, {
         withCredentials: true,
       });
     }
