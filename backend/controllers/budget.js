@@ -39,25 +39,32 @@ export async function checkIfUserHasBudget(req, res) {
       return res.status(status).json({ success: false, message });
     }
 
-      // Find if the user already has a budget using his ID.
-      const userBudget = await Budget.findOne({where: {userId: userId }});
-      // Initialize a variable that will contain a boolean value 'false' if the user has not set a monthly budget yet.
-      const userHasBudget = userBudget != null; 
+    // Find if the user already has a budget using his ID.
+    const userBudget = await Budget.findOne({where: {userId: userId }});
 
-      // Send a 200 OK response. 
-      return res.status(200).json({ success: true, hasBudget: userHasBudget });
-    }
-    catch(error)
-    {
-      // If the token is invalid or expired, return 401 Unauthorized. The function execution stops here.
-      if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") 
-      {
-        return res.status(401).json({ success: false, message: "Invalid or expired token." });
+    // Send a 200 OK response. 
+    return res.status(200).json({ 
+      success: true, 
+      // Boolean value. True if the user has budget, false if he doesn't.
+      hasBudget: !!userBudget, 
+      // If the user has budget, an object with information about the budget's amount and currency will be sent as a response.
+      budget: userBudget && {
+        amount: userBudget.amount,
+        currency: userBudget.currency
       }
-
-  
-      return res.status(500).json({ success: false, message: "Internal server error." });
+    });
+  }
+  catch(error)
+  {
+    // If the token is invalid or expired, return 401 Unauthorized. The function execution stops here.
+    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") 
+    {
+      return res.status(401).json({ success: false, message: "Invalid or expired token." });
     }
+
+
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
 }
 
 
