@@ -9,6 +9,55 @@ const Expense = db.Expense;
 const Category = db.Category;
 
 /**
+ * Retrieves all expenses that belong to the authenticated user.
+ *
+ * This controller verifies the user's identity by extracting the JWT token 
+ * from cookies, validating it, and using the decoded user ID to fetch all 
+ * related expenses from the database.
+ *
+ * @async
+ * @function getAllUserExpenses
+ * @param {import('express').Request} req - The HTTP request object. Expects a JWT inside `req.cookies['auth-token']`.
+ * @param {import('express').Response} res - The HTTP response object used to send JSON responses.
+ * 
+ * @returns {Promise<import('express').Response>} JSON response with one of:
+ *
+ * | Status | success | Description |
+ * |--------|---------|-------------|
+ * | **200 OK** | `true` | Returns all expenses for the authenticated user |
+ * | **401 Unauthorized** | `false` | Missing / invalid / expired token |
+ * | **500 Internal Server Error** | `false` | Unexpected server failure |
+ *
+ * @example
+ * // Example Express route using the controller:
+ * router.get('/expenses', getAllUserExpenses);
+ */
+export async function getAllUserExpenses(req, res)
+{
+  try
+  {
+    // Call a helper function that extracts the authenticated user's id from the auth token in the cookies. 
+    const { success: tokenSuccess, status: tokenStatus, message: tokenMessage, userId } = getUserIdFromToken(req.cookies, 'auth-token');
+    // If the user token is not extracted successfully, the function execution stops here.
+    if (!tokenSuccess) { 
+      return res.status(tokenStatus).json({ success: false, message: tokenMessage }) 
+    }
+
+    // Fetch all user expenses
+    const userExpenses = await db.Expense.findAll({where: {userId}});
+
+    // Send a 200 OK response. 
+    return res.status(200).json({success: true, data: userExpenses});
+    
+  }
+  catch(error)
+  {
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+}
+
+
+/**
  * Adds an expense record for the authenticated user.
  *
  * Handles:
