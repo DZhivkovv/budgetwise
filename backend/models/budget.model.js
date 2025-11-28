@@ -20,9 +20,7 @@ export default (sequelize, Sequelize) => {
     amount: {
       type: Sequelize.DECIMAL(10, 2),
       allowNull: false,
-      validate: {
-        min: 1,
-      },
+      min: 0,
     },
     currency: {
       type: Sequelize.ENUM("BGN", "EUR", "USD"),
