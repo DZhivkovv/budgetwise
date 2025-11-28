@@ -12,7 +12,7 @@ const LoginForm = () => {
     // A react router dom hook used for in-app navigation
     const navigate = useNavigate();
     // A context that tracks user's authentication state. It is used in this component to change the user's auth state to true on successful login
-    const { setIsLoggedIn } = use(AuthContext); 
+    const { setIsLoggedIn, setUserId } = use(AuthContext); 
 
     // State to store email and password input values
     const [formData, setFormData] = useState({
@@ -33,13 +33,15 @@ const LoginForm = () => {
         try
         {
             // Sends POST request to login endpoint with form data
-            const { status } = await axios.post('http://localhost:3000/auth/login', formData, { withCredentials: true });
+            const { status, data } = await axios.post('http://localhost:3000/auth/login', formData, { withCredentials: true });
 
             // If the user login is successful:
             if (status === 200) {
                 // 1) Mark the user as logged in to restrict the user's access to the login and register page while authenticated.
                 setIsLoggedIn(true);
 
+                setUserId(data.data.id);
+                
                 // 2) Redirect to homepage.
                 navigate('/');
             }
