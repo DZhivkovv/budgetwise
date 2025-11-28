@@ -12,7 +12,6 @@
  */
 export default function validateExpenseInput(expenseCategoryId, expenseAmount, expenseDate, expenseIsPeriodic, recurringPeriod) 
 {
-
     // Validate category ID
    if (
         expenseCategoryId === undefined ||
@@ -66,9 +65,9 @@ export default function validateExpenseInput(expenseCategoryId, expenseAmount, e
             return { valid: false, status: 400, message: "Invalid recurring period" };
         }
     }
-    else 
+    else
     {
-        if (recurringPeriod !== undefined && recurringPeriod !== null) 
+        if (recurringPeriod) 
         {
             return { valid: false, status: 400, message: "The expense is not periodic" };
         }
