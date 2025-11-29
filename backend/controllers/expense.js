@@ -70,7 +70,7 @@ export async function getAllUserExpenses(req, res)
     });
     
     // Send a 200 OK response. 
-    return res.status(200).json({success: true, data: userExpenses});
+    return res.status(200).json({success: true, expenses: userExpenses});
     
   }
   catch(error)
