@@ -3,11 +3,11 @@ import validateExpenseInput from "../utils/validation/validateExpenseInput.js"
 import calculateNextExpenseDate from "../utils/expense/calculateNextExpenseDate.js";
 import getUserBudget from "../utils/budget/getUserBudget.js";
 
-// Import Expense and Category models from the database
+// Import User, Expense and Category models from the database
 import db from "../models/index.js";
+const User = db.User;
 const Expense = db.Expense;
 const Category = db.Category;
-
 /**
  * Retrieves all expenses that belong to the authenticated user.
  *
@@ -43,16 +43,39 @@ export async function getAllUserExpenses(req, res)
       return res.status(tokenStatus).json({ success: false, message: tokenMessage }) 
     }
 
-    // Fetch all user expenses
-    const userExpenses = await db.Expense.findAll({where: {userId}});
-
+    // Find all user expenses and return them including the expenses category names and user budget currency.
+    const userExpenses = await Expense.findAll({
+      where: { userId },
+      include: [
+        // Include expense category name
+        {
+          model: Category,
+          as: "category",
+          attributes: ["name"]
+        },
+        // Include user budget currency
+        {
+          model: db.User,
+          as: "user",
+          include: [
+            {
+              model: db.Budget,
+              as: "budget",
+              attributes: ["currency"]
+            }
+          ],
+          attributes: ["id"], 
+        },
+      ]
+    });
+    
     // Send a 200 OK response. 
     return res.status(200).json({success: true, data: userExpenses});
     
   }
   catch(error)
   {
-    return res.status(500).json({ success: false, message: "Internal server error" });
+    return res.status(500).json({ success: false, message: error.message });
   }
 }
 
