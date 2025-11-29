@@ -18,10 +18,12 @@
  * An object describing whether the input is valid and what response to send.
  */
 export default function validateUserBudget(budget, currency) {
-  if (isNaN(budget) || budget <= 0) {
+  // If the budget amount is not a number or a number that is less than a zero, the budget is invalid
+  if (isNaN(budget) || budget < 0) {
     return { valid: false, status: 400, message: "Invalid budget value" };
   }
 
+  // If the currency is not BGN, EUR or USD, the budget is invalid
   if (!['BGN', 'EUR', 'USD'].includes(currency)) {
     return { valid: false, status: 400, message: "Invalid currency value" };
   }
