@@ -28,5 +28,15 @@ db.Expense = ExpenseModel(sequelize, Sequelize);
 // Initialize the Category model and attach it to db object
 db.Category = CategoryModel(sequelize, Sequelize);
 
+// Associations
+db.Expense.belongsTo(db.Category, { foreignKey: "categoryId", as: "category" });
+db.Category.hasMany(db.Expense, { foreignKey: "categoryId", as: "expenses" });
+
+db.Budget.belongsTo(db.User, { foreignKey: "userId", as: "user" });
+db.User.hasOne(db.Budget, { foreignKey: "userId", as: "budget" });
+
+db.User.hasMany(db.Expense, { foreignKey: "userId", as: "expenses" });
+db.Expense.belongsTo(db.User, { foreignKey: "userId", as: "user"});
+
 // Export the db object so it can be used elsewhere (controllers, routes, etc.)
 export default db;
