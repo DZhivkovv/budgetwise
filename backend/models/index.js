@@ -1,42 +1,40 @@
 import dbConfig from "../config/db.config.js";
-import { Sequelize } from "sequelize"; 
-import UserModel from "./user.model.js";
-import BudgetModel from "./budget.model.js";
-import CategoryModel from './category.model.js';
-import ExpenseModel from './expense.model.js';
+import { Sequelize } from "sequelize";
+import userModel from "./user.model.js";
+import categoryModel from "./category.model.js";
+import budgetModel from "./budget.model.js";
+import expenseModel from "./expense.model.js";
+import goalModel from "./goal.model.js";
 
-// Create a Sequelize instance using configuration from db.config.js
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
-  host: dbConfig.HOST,       // Database host
-  dialect: dbConfig.dialect, // Database type (postgres)
-  port: dbConfig.PORT,       // Database port
-  pool: dbConfig.pool,       // Connection pool settings
-  logging: false
+  host: dbConfig.HOST,
+  dialect: dbConfig.dialect,
+  port: dbConfig.PORT,
+  pool: dbConfig.pool,
+  logging: false,
 });
 
-// Create an object to hold all models and Sequelize instance
 const db = {};
-db.Sequelize = Sequelize;     // Save Sequelize library reference
-db.sequelize = sequelize;     // Save Sequelize instance
+db.Sequelize = Sequelize;
+db.sequelize = sequelize;
 
-// Initialize the User model and attach it to db object
-db.User = UserModel(sequelize, Sequelize);
-// Initialize the Budget model and attach it to db object
-db.Budget = BudgetModel(sequelize, Sequelize);
-// Initialize the Expense model and attach it to db object
-db.Expense = ExpenseModel(sequelize, Sequelize);
-// Initialize the Category model and attach it to db object
-db.Category = CategoryModel(sequelize, Sequelize);
+db.User = userModel(sequelize, Sequelize);
+db.Budget = budgetModel(sequelize, Sequelize);
+db.Expense = expenseModel(sequelize, Sequelize);
+db.Category = categoryModel(sequelize, Sequelize);
+db.Goal = goalModel(sequelize, Sequelize);
 
 // Associations
+db.Budget.belongsTo(db.User, { foreignKey: "userId", as: "users" });
+db.User.hasMany(db.Budget, { foreignKey: "userId", as: "budgets" });
+
+db.Expense.belongsTo(db.User, { foreignKey: "userId", as: "users" });
+db.User.hasMany(db.Expense, { foreignKey: "userId", as: "expenses" });
+
 db.Expense.belongsTo(db.Category, { foreignKey: "categoryId", as: "category" });
 db.Category.hasMany(db.Expense, { foreignKey: "categoryId", as: "expenses" });
 
-db.Budget.belongsTo(db.User, { foreignKey: "userId", as: "user" });
-db.User.hasOne(db.Budget, { foreignKey: "userId", as: "budget" });
+db.Category.hasMany(db.Goal, { foreignKey: "categoryId" });
+db.Goal.belongsTo(db.Category, { foreignKey: "categoryId" });
 
-db.User.hasMany(db.Expense, { foreignKey: "userId", as: "expenses" });
-db.Expense.belongsTo(db.User, { foreignKey: "userId", as: "user"});
-
-// Export the db object so it can be used elsewhere (controllers, routes, etc.)
 export default db;
