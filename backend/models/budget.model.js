@@ -1,35 +1,38 @@
-export default (sequelize, Sequelize) => {
-  const Budget = sequelize.define("budget", {
-    id: {
-      type: Sequelize.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
+export default (sequelize, DataTypes) => {
+  const Budget = sequelize.define(
+    "Budget",
+    {
+      id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+      userId: { type: DataTypes.INTEGER, allowNull: false },
+      startDate: { type: DataTypes.DATEONLY, allowNull: false },
+      endDate: { type: DataTypes.DATEONLY, allowNull: false },
+      budget: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+      remainingBudget: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+      currency: { type: DataTypes.STRING(3), allowNull: false },
+      isClosed: { type: DataTypes.BOOLEAN, defaultValue: false },
     },
-    // User ID. References the user with the budget.  
-    userId: {
-      type: Sequelize.INTEGER,
-      unique: true, // keep this only if one budget per user
-      references: {
-        model: "users",
-        key: "id",
+    {
+      tableName: "budgets",
+      indexes: [
+        {
+          unique: true,
+          fields: ["userId", "startDate", "endDate"],
+        },
+      ],
+      validate: {
+        endDateAfterStart() {
+          if (this.endDate <= this.startDate) {
+            throw new Error("endDate must be after startDate");
+          }
+        },
       },
-      onUpdate: "CASCADE",
-      onDelete: "CASCADE",
     },
-    // Budget amount: float number
-    amount: {
-      type: Sequelize.DECIMAL(10, 2),
-      allowNull: false,
-      min: 0,
-    },
-    currency: {
-      type: Sequelize.ENUM("BGN", "EUR", "USD"),
-      allowNull: false,
-    },
-  }, {
-    timestamps: true,
-  });
+  );
 
-  // Return the Budget model to be used elsewhere in the app
+  Budget.associate = (models) => {
+    Budget.belongsTo(models.User, { foreignKey: "userId" });
+    Budget.hasMany(models.Expense, { foreignKey: "budgetId" });
+  };
+
   return Budget;
 };
