@@ -1,11 +1,9 @@
+import { MAIN_LINKS, AUTH_LINKS_PRIVATE, AUTH_LINKS_PUBLIC } from '../constants/navigationLinks';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { NavLink } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import '../styles/navigation.css';
-
-// Main application links
-const MAIN_LINKS = ['Dashboard', 'Statistics'];
 
 /**
  * NavigationBar component.
@@ -22,11 +20,11 @@ const NavigationBar = () => {
     // Auth state used to show correct authentication links
     const { isLoggedIn } = useContext(AuthContext);
 
+    // Authentication links change based on login status
+    const authLinks = isLoggedIn ? AUTH_LINKS_PRIVATE : AUTH_LINKS_PUBLIC;
+
     // State to toggle mobile menu open/close
     const [isOpen, setIsOpen] = useState(false);
-
-    // Authentication links change based on login status
-    const authenticationLinks = isLoggedIn ? ['Logout'] : ['Log In', 'Register'];
 
     return (
         <nav className={`g_navbar ${isOpen ? 'g_navbar--open' : ''}`}>
@@ -48,30 +46,30 @@ const NavigationBar = () => {
             <div className="g_navbar__links-container">
                 {MAIN_LINKS.map(link => (
                     <NavLink
-                        to={`/${link.toLowerCase()}`}
-                        key={link}
+                        key={link.label}
+                        to={link.path}
                         className={({ isActive }) =>
                             isActive ? "g_navbar__item g_navbar__item__active" : "g_navbar__item"
                         }
                         onClick={() => setIsOpen(false)} // Close menu on link click
                     >
-                        {link}
+                        {link.label}
                     </NavLink>
                 ))}
             </div>
 
             {/* Authentication links */}
             <div className="g_navbar__auth-container">
-                {authenticationLinks.map(link => (
+                {authLinks.map(link => (
                     <NavLink
-                        to={`/${link.toLowerCase().replace(' ', '')}`} // Normalize URL for routes
-                        key={link}
+                        key={link.label}
+                        to={link.path}
                         className={({ isActive }) =>
                             isActive ? "g_navbar__item g_navbar__item__active" : "g_navbar__item"
                         }
                         onClick={() => setIsOpen(false)} // Close menu on click
                     >
-                        {link}
+                        {link.label}
                     </NavLink>
                 ))}
             </div>
