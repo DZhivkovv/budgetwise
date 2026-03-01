@@ -1,40 +1,106 @@
-import { useState, useEffect, createContext } from 'react'
-import axios from 'axios';
+import { createContext, useState, useEffect } from "react";
+import { getAuthenticatedUserData, logout } from "../services/authService.js";
+import { registerUser } from "../services/authService.js";
 
 export const AuthContext = createContext({
-    isLoggedIn: false, 
-    setIsLoggedIn: () => {} 
+    isLoggedIn: false,
+    isLoading: false,
+    user: null,
+    error: null,
+    login: ()=>{},
+    register: () => {},
+    logoutUser: () => {},
 });
 
-export default function AuthProvider({children}) {
-    // A state that tracks if the user is logged in.
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    // A state that contains the logged user's id.
-    const [userId, setUserId] = useState('');
+export default function AuthProvider({ children }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
 
-    const [isLoading, setIsLoading] = useState(true);
+  const fetchMe = async () => {
+    try 
+    {
+      const { data } = await getAuthenticatedUserData();
+      if (data.authenticated) 
+      {
+        setIsLoggedIn(true);
+        setUser(data.data);
+      } 
+      else 
+      {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    } 
+    catch 
+    {
+      setIsLoggedIn(false);
+      setUser(null);
+    } 
+    finally 
+    {
+      setIsLoading(false);
+    }
+  };
 
-    // On mount, check if the user is already authenticated 
-    useEffect(() => {
-        axios
-            .get('http://localhost:3000/auth', { withCredentials: true })
-            .then(({ data }) => {
-                setIsLoggedIn(!!data.success);
-                setUserId(data.user?.id || '');
-            })
-            .catch(() => {
-                setIsLoggedIn(false);
-                setUserId('');
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    }, []);
+  const register = async(data) => {
+    setIsLoading(true)
+    try
+    {
+      await registerUser(data);
+    }
+    catch (error)
+    {
+      setError(error)
+    }
+    finally
+    {
+      setIsLoading(false);
+    }
+  }
 
-    // Provides authentication state and updater to all children
-    return (
-        <AuthContext.Provider value={{ isLoading, userId, setUserId, isLoggedIn, setIsLoggedIn }}>
-            {children}
-        </AuthContext.Provider>
-    )
+  const logoutUser = async () => {
+    try 
+    {
+      setError(null);
+      await logout();
+    } 
+    catch (error) 
+    {
+      setError(error)
+    } 
+    finally 
+    {
+      setIsLoggedIn(false);
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        await fetchMe();
+      } catch (err) {
+        console.error("fetchMe failed", err);
+      }
+    };
+    loadUser();
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        isLoading,
+        user,
+        error,
+        login: fetchMe,
+        register,
+        logoutUser,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
