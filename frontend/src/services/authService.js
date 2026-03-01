@@ -24,6 +24,32 @@ export const getAuthenticatedUserData = async () => {
 };
 
 /**
+ * Authenticates a user with the backend and sets an HTTP-only JWT cookie.
+ *
+ * Sends a POST request to `/auth/login` with the user's email and password.
+ *
+ * @async
+ * @function login
+ * @param {Object} data - User login credentials.
+ * @param {string} data.email - The user's email address.
+ * @param {string} data.password - The user's password.
+ * @returns {Promise<import("axios").AxiosResponse<{
+ *   success: boolean,
+ *   message: string,
+ *   data?: Object
+ * }>>} - Axios response object containing success status, message, and user data.
+ *
+ * @example
+ * const response = await login({ email: "user@example.com", password: "password123" });
+ * if (response.data.success) {
+ *   console.log("Logged in!", response.data.data);
+ * }
+ */
+export const login = async (data) => {
+  return api.post("/auth/login", data);
+};
+
+/**
  * Registers a new user account.
  *
  * Sends a POST request to `/auth/register` with user credentials.

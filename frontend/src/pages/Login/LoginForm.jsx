@@ -1,9 +1,8 @@
 import { useState, useContext} from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import axios from "axios";
+import { login } from "../../services/authService";
 
-// Global CSS styles.
 import '../../styles/forms.css';
 import '../../styles/layout.css';
 
@@ -12,7 +11,7 @@ const LoginForm = () => {
     // A react router dom hook used for in-app navigation
     const navigate = useNavigate();
     // A context that tracks user's authentication state. It is used in this component to change the user's auth state to true on successful login
-    const { login } = useContext(AuthContext); 
+    const { login:fetchUserData } = useContext(AuthContext); 
     // State to store email and password input values
     const [formData, setFormData] = useState({
         email: '',
@@ -34,11 +33,11 @@ const LoginForm = () => {
         try
         {
             // Sends POST request to login endpoint with form data
-            const { status } = await axios.post('http://localhost:3000/auth/login', formData, { withCredentials: true });
+            const { status } = await login(formData);
             // If the user login is successful:
             if (status === 200) {
                 // 1) Mark the user as logged in to restrict the user's access to the login and register page while authenticated.
-                await login();
+                await fetchUserData();
                 // 2) Redirect to homepage.
                 navigate('/');
             }
