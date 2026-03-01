@@ -17,7 +17,7 @@ const app = express();
 // Enable CORS for cross-origin requests
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: process.env.CLIENT_URL || "http://localhost:3001",
     credentials: true,
   }),
 );
@@ -39,11 +39,8 @@ db.sequelize
   .then(() => console.log("Database connected"))
   .catch((err) => console.error("DB connection error: ", err));
 
-if (process.env.NODE_ENV !== "test") {
-  db.sequelize
-    .sync({ alter: true })
-    .then(() => console.log("Models synchronized"))
-    .catch((err) => console.error("Sync error:", err));
+if (process.env.NODE_ENV === "development") {
+  db.sequelize.sync({ alter: true });
 }
 
 export default app;
