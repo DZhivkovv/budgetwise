@@ -1,251 +1,170 @@
-import validateUserBudget from "../utils/validation/validateUserBudget.js"
-import getUserIdFromToken from "../utils/auth/getUserIdFromToken.js";
-
-// Import Budget model from the database
-import db from "../models/index.js";
-const Budget = db.Budget;
+import * as budgetService from "../services/budgetService.js";
 
 /**
- * Checks whether the authenticated user has an existing budget.
- *
- * Extracts the user ID from the authentication token stored in cookies,
- * queries the database for a budget entry associated with that user,
- * and returns information indicating if the budget exists and what its values are.
- *
- * @async
- * @function checkIfUserHasBudget
- * @param {import('express').Request} req - Express request object.
- * @param {import('express').Response} res - Express response object.
- * @returns {Promise<void>} Sends a JSON response:
- * 
- * **200 OK**  
- *  - `{ success: true, hasBudget: boolean, budget: number|null, currency: string|null }`
- *
- * **401 Unauthorized**  
- *  - `{ success: false, message: "Invalid or expired token." }`
- *
- * **400–499 Token extraction errors**  
- *  - Based on `getUserIdFromToken` return structure.
- *
- * **500 Internal Server Error**  
- *  - `{ success: false, message: "Internal server error." }`
- *
- * @throws Will NOT throw directly—errors are caught and translated into HTTP responses.
+ * Controller: Retrieve the currently active budget for the authenticated user.
+ * @param {Object} req - Express request object.
+ * @param {number} req.userId - Extracted from the auth middleware.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<Response>} 200 with budget details, or 404 if no active budget exists.
  */
-export async function checkIfUserHasBudget(req, res) {
+export async function checkForActiveBudget(req, res) {
   try {
-    const { success, status, message, userId } = getUserIdFromToken(req.cookies, 'auth-token');
-    if (!success) {
-      return res.status(status).json({ success: false, message });
-    }
+    // Retrieve the user ID from the request
+    const userId = req.userId;
 
-    // Find if the user already has a budget using his ID.
-    const userBudget = await Budget.findOne({where: {userId: userId }});
+    // Call a service layer function to get the active user budget
+    const activeBudget = await budgetService.getActiveBudget(userId);
+    // If no active user budget is found return a response and prompt the user to create one
+    if (!activeBudget)
+      return res
+        .status(404)
+        .json({ success: false, message: "Please, add a budget" });
 
-    // Send a 200 OK response. 
-    return res.status(200).json({ 
-      success: true, 
-      // Boolean value. True if the user has budget, false if he doesn't.
-      hasBudget: !!userBudget, 
-      // If the user has budget, an object with information about the budget's amount and currency will be sent as a response.
-      budget: userBudget && {
-        amount: userBudget.amount,
-        currency: userBudget.currency
-      }
+    // If active budget is found, return success response
+    return res.status(200).json({
+      success: true,
+      budget: activeBudget.budget,
+      remainingBudget: activeBudget.remainingBudget,
+      currency: activeBudget.currency,
+      startDate: activeBudget.startDate,
+      endDate: activeBudget.endDate,
     });
-  }
-  catch(error)
-  {
-    // If the token is invalid or expired, return 401 Unauthorized. The function execution stops here.
-    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") 
-    {
-      return res.status(401).json({ success: false, message: "Invalid or expired token." });
+  } catch (error) {
+    // Catch JWT-specific errors that might bypass middleware or occur during processing
+    if (
+      error.name === "JsonWebTokenError" ||
+      error.name === "TokenExpiredError"
+    ) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid or expired token." });
     }
 
-
-    return res.status(500).json({ success: false, message: "Internal server error." });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
   }
 }
 
+/**
+ * Controller: Retrieve all budgets associated with the authenticated user.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<Response>} 200 with full budget history list.
+ */
+export async function getAllUserBudgets(req, res) {
+  try {
+    // Retrieve user ID from request
+    const userId = req.userId;
+    // Get all user budgets
+    const allBudgets = await budgetService.getAllBudgets(userId);
 
+    // Return success response.
+    return res.status(200).json({
+      success: true,
+      hasBudgets: allBudgets.length > 0,
+      allBudgets,
+    });
+  } catch (error) {
+    if (
+      error.name === "JsonWebTokenError" ||
+      error.name === "TokenExpiredError"
+    ) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid or expired token." });
+    }
+
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
+  }
+}
 
 /**
- * Handles adding a new monthly budget for an authenticated user.
- *
- * Workflow:
- * 1. Extract authenticated user ID from JWT cookie.
- * 2. Validate authentication (missing/invalid/expired JWT → 401).
- * 3. Check whether the user already has a budget (→ 409 Conflict if true).
- * 4. Validate incoming budget amount and currency via validateUserBudget().
- * 5. Insert new budget record into the database.
- *
- * @param {import("express").Request} req - Express request object.
- * @param {import("express").Response} res - Express response object.
- *
- * @returns {Promise<import("express").Response>}
- *
- * --- POSSIBLE RESPONSE STATUSES ---
- * 201:
- * - **201 Created** → Budget successfully stored.
- *
- * 400s:
- * - **400 Bad Request** → Invalid budget or currency.
- * - **401 Unauthorized** → Invalid/missing/expired JWT.
- * - **409 Conflict** → User already has a budget.
- *
- * 500:
- * - **500 Internal Server Error** → Unexpected DB/server error.
+ * Controller: Create a new budget period for the user.
+ * @param {Object} req - Express request object.
+ * @param {Object} req.body - Contains the budget amount ('budget').
+ * @param {Object} res - Express response object.
+ * @returns {Promise<Response>} 201 Created on success.
  */
 export async function addUserBudget(req, res) {
-  try 
-  {
-    // Call a function that extracts the user ID from the auth cookie token.
-    const {success, status, message, userId} = getUserIdFromToken(req.cookies, 'auth-token');
-    // If the id can not be extracted from the token, the function execution stops here.
-    if (!success)
-    {
-        return res.status(status).json({success:false, message });
-    }
-    // Find if the user already has a budget using his ID.
-    const existingBudget = await Budget.findOne({ where: { userId } });
-    // If the user has a budget already, return 409 Conflict response. The function execution stops here.
-    if (existingBudget) {
-        return res.status(409).json({ success: false, message: "User already has a budget" });
-    }
-    
-    // Get the user's budget from the request body and parse it.
-    const { budget, currency } = req.body;
-    const parsedBudget = parseFloat(budget);
+  try {
+    //Retrieve user ID and budget data from request
+    const userId = req.userId;
+    const { budget } = req.body;
 
-    // Check if the user's budget and currency input is valid
-    const budgetValidityData = validateUserBudget(parsedBudget,currency);
-    // If the user input is invalid, return a response with information about the invalid data. The function execution stops here.
-    if (budgetValidityData.valid === false)
-    {
-        return res.status(budgetValidityData.status).json({success: false, message: budgetValidityData.message})
-    }
+    // Create user budget
+    await budgetService.createBudget(userId, budget);
 
-    // Create new record in the Budget database with the user budget.
-    const newBudget = await Budget.create({
-      userId,
-      amount: parsedBudget,
-      currency
-    });
-
-    // Send 201 Created response.
-    return res.status(201).json({ success: true, message: "Budget added successfully", budget: newBudget });
-
+    // Return success response
+    return res
+      .status(201)
+      .json({ success: true, message: "Budget added successfully!" });
   } catch (error) {
+    if (error.status)
+      return res
+        .status(error.status)
+        .json({ success: false, message: error.message });
 
-    // If the token is invalid or expired, return 401 Unauthorized. The function execution stops here.
-    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") 
-    {
-      return res.status(401).json({ success: false, message: "Invalid or expired token." });
+    if (
+      error.name === "JsonWebTokenError" ||
+      error.name === "TokenExpiredError"
+    ) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid or expired token." });
     }
 
-    res.status(500).json({ success: false, message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 }
-
-
 
 /**
- * Edits the existing budget of an authenticated user.
- *
- * Workflow:
- * 1. Extract user ID from JWT stored in cookies.
- * 2. Validate authentication (→ 401 if missing/invalid token).
- * 3. Check if the user already has a budget (→ 404 if not found).
- * 4. Validate the updated budget values.
- * 5. Update database record and return success response.
- *
- * @param {import("express").Request} req - Express request.
- * @param {import("express").Response} res - Express response.
- *
- * @returns {Promise<import("express").Response>}
- *
- * --- POSSIBLE RESPONSE STATUSES ---
- * 200:
- * - **200 OK** → Budget updated successfully.
- *
- * 400s:
- * - **400 Bad Request** → Invalid budget or currency.
- * - **401 Unauthorized** → Missing/invalid/expired JWT.
- * - **404 Not Found** → User does not have a budget to edit.
- *
- * 500:
- * - **500 Internal Server Error**
+ * Controller: Update the current active budget's total amount and currency.
+ * @param {Object} req - Express request object.
+ * @param {Object} req.body - Contains 'budget' (amount) and 'currency'.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<Response>} 200 with updated budget values.
  */
 export async function editUserBudget(req, res) {
-  try 
-  {
-    // Call a function that extracts the user ID from the auth cookie token.
-    const {success, status, message, userId} = getUserIdFromToken(req.cookies, 'auth-token');
-    // If the id can not be extracted from the token, the function execution stops here.
-    if (!success)
-    {
-        return res.status(status).json({success:false, message });
-    }
-    
-    // Find if the user already has a budget using his ID.
-    const existingBudget = await Budget.findOne({ where: { userId } });
-    // If the user does not have a budget already, return 404 Not Found response. The function execution stops here.
-    if (!existingBudget) {
-        return res.status(404).json({ success: false, message: "User does not have a budget" });
-    }
-    // Get the user's budget from the request body and parse it.
+  try {
+    // Retrieve user ID and budget data from request
+    const userId = req.userId;
     const { budget, currency } = req.body;
-    const parsedBudget = parseFloat(budget);
-    
-    // Check if the user's budget and currency input is valid
-    const budgetValidityData = validateUserBudget(parsedBudget,currency);
-    // If the user input is invalid, return a response with information about the invalid data. The function execution stops here.
-    if (!budgetValidityData.valid)
-    {
-        return res.status(budgetValidityData.status).json({success: false, message: budgetValidityData.message})
-    }
 
-    // Update the user's budget record in the database.
-    existingBudget.amount = parsedBudget;
-    existingBudget.currency = currency;
-    await existingBudget.save();
+    // Update and recalculate remaining balance
+    const updatedBudget = await budgetService.updateBudget(
+      userId,
+      budget,
+      currency,
+    );
 
-    // Send 200 OK response.
-    return res.status(200).json({ success: true, message: "Budget edited successfully", existingBudget});
-
+    // Return success response
+    return res.status(200).json({
+      success: true,
+      message: "Budget edited successfully.",
+      budget: updatedBudget.budget,
+      remainingBudget: updatedBudget.remainingBudget,
+    });
   } catch (error) {
+    if (error.status)
+      return res
+        .status(error.status)
+        .json({ success: false, message: error.message });
 
-    // If the token is invalid or expired, return 401 Unauthorized. The function execution stops here.
-    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") 
-    {
-      return res.status(401).json({ success: false, message: "Invalid or expired token." });
-    }
+    if (
+      error.name === "JsonWebTokenError" ||
+      error.name === "TokenExpiredError"
+    )
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid or expired token." });
 
-    res.status(500).json({ success: false, message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TEST FUNCTIONS - To be removed later.
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-export async function getAllBudgets(req, res) {
-  const budgets = await Budget.findAll();
-
-  // If user has no budgets yet
-  if (!budgets.length) {
-      return res.status(200).json({ success: true, message: "No budgets found", data: [] });
-  }
-
-  // Return all budgets
-  return res.status(200).json({ success: true, data: budgets });
-}
-
-
-export async function deleteAllBudgets(req, res) {
-
-  await Budget.destroy({ where: {},truncate: true,   restartIdentity: true})
-
-  return res.status(200).json({ success: true, message: "All budgets removed" });
 }
