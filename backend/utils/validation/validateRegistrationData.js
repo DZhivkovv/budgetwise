@@ -17,7 +17,7 @@
  * @param {string} data.password - The user's chosen password.
  * @param {string} data.confirmPassword - Confirmation of the chosen password.
  *
- * @returns {{ valid: boolean, message: string }} 
+ * @returns {{ valid: boolean, message: string }}
  * An object indicating whether the validation passed.
  * - `valid: true` → All checks succeeded.
  * - `valid: false` → Validation failed, and `message` contains the reason.
@@ -32,58 +32,74 @@
  * - "Registration data valid"
  */
 function validateRegistrationData(data) {
-    const { firstName, lastName, age, email, password, confirmPassword } = data;
-    const parsedAge = Number(age);
-    
-    // Check for correct field types 
-    if (
-        // First name should be a string
-        typeof firstName !== 'string' ||
-        // Last name should be a string
-        typeof lastName !== 'string' || 
-        // Age should be a number
-        isNaN(age) || 
-        // Email should be a string
-        typeof email !== 'string' ||
-        // Password should be a string
-        typeof password !== 'string' || 
-        // Confirm password should be a string
-        typeof confirmPassword !== 'string'
-    ) 
-    {
-        return { valid: false, message: "Wrong field datatype!" };
-    }
-    
-    const trimmedEmail = email?.trim();
-    // Check for empty fields
-    if (!firstName?.trim() || !lastName?.trim() || !age || !trimmedEmail || !password || !confirmPassword) {
-        return { valid: false, message: "All fields are required!" };
-    }
+  const { firstName, lastName, age, email, password, confirmPassword } = data;
+  const parsedAge = Number(age);
 
-    // Age validation
-    if ( isNaN(parsedAge) || !Number.isSafeInteger(parsedAge) || parsedAge < 13 || parsedAge > 120 ) 
-    {
-        return { valid: false, message: "Your age must be a whole number between 13 and 120!" };
-    }
+  // Check for correct field types
+  if (
+    // First name should be a string
+    typeof firstName !== "string" ||
+    // Last name should be a string
+    typeof lastName !== "string" ||
+    // Age should be a number
+    isNaN(age) ||
+    // Email should be a string
+    typeof email !== "string" ||
+    // Password should be a string
+    typeof password !== "string" ||
+    // Confirm password should be a string
+    typeof confirmPassword !== "string"
+  ) {
+    return { valid: false, message: "Wrong field datatype!" };
+  }
 
+  const trimmedEmail = email?.trim();
+  // Check for empty fields
+  if (
+    !firstName?.trim() ||
+    !lastName?.trim() ||
+    !age ||
+    !trimmedEmail ||
+    !password ||
+    !confirmPassword
+  ) {
+    return { valid: false, message: "All fields are required!" };
+  }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(trimmedEmail)) {
-        return { valid: false, message: "Invalid email address." };
-    }
+  // Age validation
+  if (
+    isNaN(parsedAge) ||
+    !Number.isSafeInteger(parsedAge) ||
+    parsedAge < 13 ||
+    parsedAge > 120
+  ) {
+    return {
+      valid: false,
+      message: "Your age must be a whole number between 13 and 120!",
+    };
+  }
 
-    // Password strength
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/.test(password)) {
-        return { valid: false, message: "Password must be at least 8 chars and include uppercase, lowercase, number, and special character." };
-    }
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(trimmedEmail)) {
+    return { valid: false, message: "Invalid email address!" };
+  }
 
-    // Password match
-    if (password !== confirmPassword) {
-        return { valid: false, message: "Passwords do not match." };
-    }
+  // Password strength
+  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/.test(password)) {
+    return {
+      valid: false,
+      message:
+        "Password must be at least 8 chars and include uppercase, lowercase, number, and special character.",
+    };
+  }
 
-    return { valid: true, message: "Registration data valid" };
+  // Password match
+  if (password !== confirmPassword) {
+    return { valid: false, message: "Passwords do not match." };
+  }
+
+  return { valid: true, message: "Registration data valid" };
 }
 
 export default validateRegistrationData;
