@@ -17,7 +17,10 @@ const app = express();
 // Enable CORS for cross-origin requests
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3001",
+    origin: [
+      "https://budgetwise-sepia.vercel.app",
+      "https://budgetwise-ikuk43rch-dzhivkovvs-projects.vercel.app",
+    ],
     credentials: true,
   }),
 );
