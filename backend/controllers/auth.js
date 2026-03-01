@@ -19,7 +19,7 @@ export async function login(req, res) {
     res.cookie("auth-token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Set to true only in production (HTTPS)
-      sameSite: "lax",
+      sameSite: "none",
       maxAge: 3600000, // 1 hour
     });
 
