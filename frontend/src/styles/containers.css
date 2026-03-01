@@ -1,0 +1,94 @@
+.g_error-message-container
+{
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.g_page-footer-link
+{
+  margin-top: 24px;
+  font-size: 14px;
+  color: #666;
+}
+
+.g_loader__wrapper {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(120, 120, 120, 0.2);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+.g_loader__wrapper.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.g_loader__wrapper.hidden {
+  opacity: 0;
+}
+
+.g_error-container
+{
+  min-height: 20px;   
+  margin-top: 10px;
+  text-align: center;
+}
+
+.g_statistics-card {
+  width: 320px;
+  min-height: 360px;
+  margin: 10px;
+  padding: 16px;
+
+  background-color: #ffffff;
+  border-radius: 12px;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  text-align: center;
+
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.g_statistics-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.g_statistics-card--width--full
+{
+  width: 95%;
+}
+
+.g_card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #37474f;
+  margin-bottom: 12px;
+}
+
+.actions-container
+{
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background-color: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    font-size: 15px;
+    color: #495057;
+};

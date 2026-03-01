@@ -1,0 +1,6 @@
+.add-expense-btn
+{
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}

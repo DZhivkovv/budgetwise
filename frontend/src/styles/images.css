@@ -9,16 +9,31 @@
 
 /*
  * ====================================
- * LOGO STYLES
+ * IMAGES
  * ====================================
 */
-
-/* A logo */
 .g_logo 
 {
   width: 160px;
 }
 
+.g_icon
+{
+  width: 16px;
+  margin: 0px 5px;
+}
+
+.g_icon:hover
+{
+  transform: scale(1.15);
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+.g_icon--size-24
+{
+  width: 24px;
+}
 
 /*
  * ====================================
@@ -29,6 +44,8 @@
 /* A floating image */
 .g_floating-image 
 {
+  display:block;
+  max-width: 50%;
   object-fit: contain;
   animation: float 3s ease-in-out infinite;
 }

@@ -1,3 +1,5 @@
+
+
 /*
  * --------------------------------
  * GLOBAL LAYOUT & UTILITY STYLES
@@ -12,26 +14,40 @@
  * ====================================
 */
 
-/* A simple flex container that doesn't center its child elements neither horizontally nor vertically. */
-.g_flex-container 
+.g_items-in-a-column
+{
+  display: flex;
+  flex-flow: column;
+  gap: 10px;
+}
+
+.g_items-in-a-row 
 {
   display: flex;
   flex-wrap: wrap;
 }
 
-/* A modifier class to horizontally center the flex items inside a .g_flex-container. */
-.g_flex-container--justify-content-center
+.g_items-in-a-row--flex-wrap--nowrap
+{
+  flex-wrap: nowrap;
+}
+
+
+.g_items-in-a-row--justify-content--center
 {
   justify-content: center;
 }
 
-/* A modifier class to vertically center the flex items inside a .g_flex-container. */
-.g_flex-container--align-items-center
+.g_items-in-a-row--align-items-center
 {
     align-items: center;
 }
 
-/* A class that centers items perfectly both horizontally and vertically. */
+.g_items-in-a-row--justify-content--space-between
+{
+  justify-content: space-between;
+}
+
 .g_flex-center-all 
 {
   display: flex;
@@ -51,6 +67,7 @@
 {
   width: 35%;
   display: flex;
+  justify-content: center;
   align-items: center;
 }
 
@@ -65,6 +82,7 @@
 
   background: linear-gradient(135deg, #d8e9ff, #bcdcff);
 }
+
 
 /*
  * ====================================
@@ -113,6 +131,19 @@
   width: 25%;
 }
 
+/* A utility class for setting an element's width to 30%. */
+.g_width-30
+{
+  width: 30%;
+}
+
+
+/* A utility class for setting an element's width to 40%. */
+.g_width-40
+{
+  width: 40%;
+}
+
 /* A utility class for setting an element's width to 50%. */
 .g_width-50
 {
@@ -131,11 +162,11 @@
   width: 75%;
 }
 
-/* A utility class for setting an element's width to 100%. */
 .g_width-100
 {
   width: 100%;
 }
+
 
 
 /*
@@ -158,5 +189,158 @@
   {
     display: none;
   }
+}
 
+/* -------------------------------
+   DASHBOARD LAYOUT
+-------------------------------- */
+
+.dashboard-layout {
+  padding: 2rem;
+  display: grid;
+
+  /* Full height layout */
+  height: 90%;
+  max-height: 100vh;
+  overflow: hidden;
+
+  /* 4 columns: left panel + wide calendar */
+  grid-template-columns: 1fr 2fr 2fr 2fr;
+
+  /* 3 rows: top info, actions, calendar area */
+  grid-template-rows: auto auto 1fr;
+
+  gap: 2rem;
+}
+
+.cell {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* -------------------------------
+   LEFT PANEL
+-------------------------------- */
+
+#user-information {
+  grid-column: 1 / 2;
+  grid-row: 1;
+}
+
+#actions {
+  grid-column: 1 / 2;
+  grid-row: 2;
+}
+
+/* -------------------------------
+   CALENDAR (RIGHT SIDE)
+-------------------------------- */
+
+#calendar {
+  grid-column: 2 / -1; /* takes columns 2, 3, 4 */
+  grid-row: 1 / 4;     /* spans all rows */
+
+  height: 100%;        /* grow to full grid height */
+  overflow: hidden;    /* prevent scroll bleed */
+}
+
+/* Wrapper so FullCalendar doesn’t overflow */
+.g_calendar-wrapper {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* FULL HEIGHT CALENDAR */
+.g_calendar-wrapper .fc {
+  height: 100% !important;
+}
+
+@media (max-width: 768px) {
+  .dashboard-layout {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  /* Make all cells full width (No width change) */
+  .dashboard-layout > * {
+    width: 100%;
+  }
+
+  .dashboard-actions
+  {
+    display: flex;
+    justify-content: space-evenly; 
+    padding: 0 5px; 
+  }
+
+  .dashboard-actions button
+  {
+    /* MODIFIED: Simpler, slightly darker gradient */
+    background: linear-gradient(135deg, #0069d9, #007bff); 
+    color: #ffffff;
+    border-radius: 8px; /* MODIFIED: Slightly rounder corners */
+    font-weight: 600; /* MODIFIED: Bolder font */
+    letter-spacing: 0.5px; /* MODIFIED: Slightly wider spacing */
+  }
+
+  /* ADDED: Active state for button press on mobile */
+  .dashboard-actions button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.4);
+  }
+
+  .test-user-info
+  {
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    /* MODIFIED: Tighter gap */
+    gap: 15px; 
+    justify-content: center;
+  }
+
+  .test-user-info p
+  {
+    width: 45%;
+    background-color: #f7f7f7;
+    padding: 0.5rem 0.5rem;
+    border-radius: 10px;
+    color: #495057;
+    font-size: 0.9rem;
+    text-wrap: wrap;
+  }
+
+  .cell
+  {
+    height: auto;
+    /* MODIFIED: Align content to the start instead of center for better structure */
+    justify-content: flex-start; 
+    flex-direction: column; /* ADDED: To make content stack naturally */
+  }
+
+  .dashboard-actions button
+  {
+    /* MODIFIED: More substantial padding */
+    padding: 10px 15px; 
+    font-size: 0.95rem;
+  }
+
+
+  #calendar {
+    height: auto;
+    min-height: 400px;
+  }
+
+  .g_calendar-wrapper,
+  .g_calendar-wrapper .fc {
+    height: auto !important;
+  }
 }

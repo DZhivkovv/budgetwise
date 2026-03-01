@@ -1,60 +1,117 @@
-/*
- * --------------------------------
- * GLOBAL STYLES FOR FORMS AND FORM ELEMENTS
- * --------------------------------
- * This file contains styles that can be applied
- * to forms and form elements.
-*/
-
-
-/*
- * ====================================
- * INPUT FIELD STYLES
- * ====================================
-*/
-
-/* Styles for input fields in form (text, email, password, etc.). */
-.g_form__input {
+/* ===============================
+   FORM CONTAINER
+   =============================== */
+.g_form {
   width: 100%;
-  box-sizing: border-box;   /* fix за ширината */
-  padding: 12px;
-  margin-top: 15px;
+  max-width: 500px;
+  padding: 28px;
 
-  border: 1.5px solid #d0d6e1;
-  border-radius: 8px;
+  background: #ffffff;
+  border-radius: 16px;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9eff6;
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  font-family: system-ui, sans-serif;
+}
+
+/* ===============================
+   LABELS
+   =============================== */
+.g_form__label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #2d3b45;
+}
+
+.g_form__label-inline {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3b45;
+  margin-right: 10px;
+}
+
+/* ===============================
+   INPUT GROUPS
+   =============================== */
+.g_form__group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.g_form__group--inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ===============================
+   INPUT / SELECT BASE STYLES
+   =============================== */
+.g_form__input,
+.g_form__textarea {
+  width: 100%;
+  padding: 14px;
+
+  border: 1.5px solid #d1dae6;
+  border-radius: 10px;
 
   background: #f9fbff;
+  font-size: 15px;
   transition: all 0.2s;
 }
 
-/* Style when the input field in a form is focused (active field) */
-.g_form__input:focus {
-  border-color: #0066ff;
-  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.15);
+/* ===============================
+   FOCUS STATES
+   =============================== */
+.g_form__input:focus,
+.g_form__textarea:focus {
+  border-color: hsl(183.75deg 69% 50%);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.2);
   outline: none;
 }
 
-/* A submit button  */
+/* ===============================
+   TEXTAREA
+   =============================== */
+.g_form__textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+/* ===============================
+   SUBMIT BUTTON
+   =============================== */
 .g_form__submit {
   width: 100%;
-  
-  padding: 12px;
-  margin-top: 15px;
+  padding: 5px 15px;
+  margin-top: 10px;
 
-  background-color: #3690a6;
+  background-color: #40a7ad;
   color: #ffffff;
 
-  border: none;
-  border-radius: 8px;
-  
   font-size: 16px;
   font-weight: 600;
 
+  border: none;
+  border-radius: 3px;
+
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
-/* Style when the cursor hovers over the submit button */
 .g_form__submit:hover {
-  background-color: #3263b2;
+  background: hsl(183.75deg 69% 43%);
+}
+
+.g_form__submit:active {
+  background: hsl(183.75deg 69% 38%);
 }

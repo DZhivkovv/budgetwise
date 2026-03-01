@@ -28,20 +28,83 @@
 /* Styles for link in the navigation bar */
 .g_navbar__item
 {
-    text-decoration: none;
-    color: #333333; 
-    font-weight: 400; 
-    transition: all .3s ease-in-out; 
-    padding: 8px 15px; 
     border-radius: 5px; 
+    color: #333333; 
+    text-decoration: none;
+    font-weight: 400;
     position: relative; 
+    
     overflow: hidden; 
+    padding: 8px 15px; 
+    margin: 0px 5px;
+
+    transition: all .3s ease-in-out; 
 }
 
 
 /* Styles for link in the navigation bar on mouse hover */
 .g_navbar__item:hover
 {
+    background-color: #90e3e7; 
+}
+
+/* Styles for active link in the navigation bar */
+.g_navbar__item__active
+{
     color: #ffffff; 
-    background-color: #007bff; 
+    background-color: #2dccd8; 
+}
+
+/* -------------------------------
+   MOBILE NAVIGATION
+-------------------------------- */
+.g_navbar__toggle {
+    display: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+    .g_navbar {
+        height: auto;
+        padding: 10px 15px;
+        flex-wrap: wrap;
+    }
+
+    .g_navbar__section {
+        width: 100%;
+        justify-content: space-between;
+        gap: 0;
+    }
+
+    /* Hide links by default */
+    .g_navbar__links-container,
+    .g_navbar__auth-container {
+        z-index: 9999;
+        background-color: #ffffff;
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        margin-top: 10px;
+        gap: 10px;
+    }
+
+    /* Show menu when active */
+    .g_navbar--open .g_navbar__links-container,
+    .g_navbar--open .g_navbar__auth-container {
+        display: flex;
+    }
+
+    .g_navbar__item {
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+    }
+
+    .g_navbar__toggle {
+        display: block;
+    }
 }
