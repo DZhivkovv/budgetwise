@@ -14,10 +14,22 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  "https://budgetwise-sepia.vercel.app",
+  "https://budgetwise-ikuk43rch-dzhivkovvs-projects.vercel.app",
+];
+
 // Enable CORS for cross-origin requests
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3001",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow server-to-server requests or Postman
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
