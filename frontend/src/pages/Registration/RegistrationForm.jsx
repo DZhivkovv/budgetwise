@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import { AuthContext } from "../../context/AuthContext";
 import validatePassword from "../../utils/auth/validatePassword";
 
 import '../../styles/forms.css'
@@ -19,6 +19,7 @@ const RegistrationForm = () => {
     });
 
     const [errorMessage, setErrorMessage] = useState("");
+    const { register } = useContext(AuthContext) 
     
     // A hook that is used to redirect user to another page.
     const navigate = useNavigate();
@@ -42,7 +43,7 @@ const RegistrationForm = () => {
         }
 
         try {
-            const res = await axios.post("http://localhost:3000/auth/register", formData);
+            const res = await register(formData);
 
             if (res.status === 201) {
                 navigate("/login");

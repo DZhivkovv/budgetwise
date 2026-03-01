@@ -45,17 +45,13 @@ export default function AuthProvider({ children }) {
   };
 
   const register = async(data) => {
-    setIsLoading(true)
-    try
-    {
-      await registerUser(data);
-    }
-    catch (error)
-    {
-      setError(error)
-    }
-    finally
-    {
+    setIsLoading(true);
+    try {
+      const res = await registerUser(data);
+      return res;    } catch (error) {
+      setError(error.response?.data?.message || "Something went wrong");
+      throw error; 
+    } finally {
       setIsLoading(false);
     }
   }
