@@ -1,32 +1,41 @@
 import { Routes, Route } from 'react-router-dom';
-// Component that protects routes so only authorized users can access them
-import ProtectedRoute from './components/ProtectedRoute';
+import AppProviders from './providers/AppProviders';
 
 import NavigationBar from './components/NavigationBar';
-import AuthProvider from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+
 import Homepage from './pages/Homepage';
-import DashboardPage from './pages/Dashboard';
 import LoginPage from './pages/Login';
 import RegistrationPage from './pages/Registration';
+import LogoutPage from './pages/Logout';
+import DashboardPage from './pages/Dashboard';
+import StatisticsPage from './pages/Statistics';
 
 function App() {
 
   return (
-      <>
-      <AuthProvider>
-      <NavigationBar/>
+    <>
+      <AppProviders>
+        <NavigationBar/>
         <Routes>
-            <Route path='/' element={<Homepage/>}/>
-            <Route path='/login' element={<LoginPage/>}/>
-            <Route path='/register' element={<RegistrationPage/>}/>
-            {/* Route to dashboard page. If the user is not authenticated, he will not be able to access it and will be redirected to the login page */}
-            <Route path='/dashboard' element={
-              <ProtectedRoute>
-                <DashboardPage/>
-              </ProtectedRoute>
-            }/>
+          <Route path='/' element={<Homepage/>}/>
+          <Route path='/login' element={<LoginPage/>}/>
+          <Route path='/register' element={<RegistrationPage/>}/>
+          <Route path='/logout' element={<LogoutPage/>}/>
+
+          <Route path='/dashboard' element={
+            <ProtectedRoute>
+              <DashboardPage/>
+            </ProtectedRoute>
+          }/>
+
+          <Route path='/statistics' element={
+            <ProtectedRoute>
+              <StatisticsPage/>
+            </ProtectedRoute>
+          }/>
         </Routes>
-      </AuthProvider>
+      </AppProviders>
       </>
   );
 }
