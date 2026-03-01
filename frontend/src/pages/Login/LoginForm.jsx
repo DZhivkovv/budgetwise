@@ -1,4 +1,4 @@
-import { useState, use} from "react";
+import { useState, useContext} from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
@@ -12,13 +12,14 @@ const LoginForm = () => {
     // A react router dom hook used for in-app navigation
     const navigate = useNavigate();
     // A context that tracks user's authentication state. It is used in this component to change the user's auth state to true on successful login
-    const { setIsLoggedIn, setUserId } = use(AuthContext); 
-
+    const { login } = useContext(AuthContext); 
     // State to store email and password input values
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     });
+
+    const [errorMessage, setErrorMessage] = useState("");
 
     // Function that handles form field value change and updates state with the new value.
     const handleChange = (event) => {
@@ -33,15 +34,11 @@ const LoginForm = () => {
         try
         {
             // Sends POST request to login endpoint with form data
-            const { status, data } = await axios.post('http://localhost:3000/auth/login', formData, { withCredentials: true });
-
+            const { status } = await axios.post('http://localhost:3000/auth/login', formData, { withCredentials: true });
             // If the user login is successful:
             if (status === 200) {
                 // 1) Mark the user as logged in to restrict the user's access to the login and register page while authenticated.
-                setIsLoggedIn(true);
-
-                setUserId(data.data.id);
-                
+                await login();
                 // 2) Redirect to homepage.
                 navigate('/');
             }
@@ -49,16 +46,25 @@ const LoginForm = () => {
         catch (error)
         {
             // If the user login fails:
-            // 1) Reset auth state.
-            setIsLoggedIn(false);
+
+            // Extract the error message from backend
+            const msg = error.response?.data?.message || "Something went wrong";
+            setErrorMessage(msg);
         }
     }
 
   return (
     // Form element with submit handler
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} class="g_items-in-a-column">
+
+        <div className="g_error-message-container">
+        {errorMessage && (
+            <p className="g_error-message">{errorMessage}</p>
+        )}
+        </div>
+
         {/* Email input field */}
-        <div className="g_flex-container">
+        <div className="g_items-in-a-row">
             <input 
                 type='email' 
                 name='email'
@@ -69,7 +75,7 @@ const LoginForm = () => {
                 />
         </div>
 
-        <div className="g_flex-container">
+        <div className="g_items-in-a-row">
             {/* Password input field */}
             <input 
                 type='password' 
@@ -78,7 +84,7 @@ const LoginForm = () => {
                 placeholder="Password"
                 onChange={handleChange} 
                 required
-            />
+                />
         </div>
 
         {/* Submit button */}

@@ -2,9 +2,8 @@ import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-// Utility functions
-import validatePassword from "../../utils/validatePassword";
-// Global CSS styles.
+import validatePassword from "../../utils/auth/validatePassword";
+
 import '../../styles/forms.css'
 
 // Component handles user registration form state and submission
@@ -18,6 +17,8 @@ const RegistrationForm = () => {
         password: '',
         confirmPassword: '',
     });
+
+    const [errorMessage, setErrorMessage] = useState("");
     
     // A hook that is used to redirect user to another page.
     const navigate = useNavigate();
@@ -31,50 +32,97 @@ const RegistrationForm = () => {
     // Handles form submission and prevents default browser behavior
     const handleSubmit = async (event) => {
         event.preventDefault();
-        // Check if the user password is valid (At least 8 characters - at least one uppercase letter, one lowercase letter, one number and one special symbol).
-        const {passwordValidity, invalidPasswordMessages } = validatePassword(formData.password, formData.confirmPassword)
 
-        // If the user password is valid, send POST request to registration endpoint with form data in order to register the user.
-        if (passwordValidity === true)
-        {
-            try {
-                const res = await axios.post("http://localhost:3000/auth/register", formData);
+        const { passwordValidity, invalidPasswordMessages } = 
+            validatePassword(formData.password, formData.confirmPassword);
 
-                // If the user is registered successfully, redirect him to the login page.
-                if (res.status === 201)
-                {
-                    navigate("/login");
-                }
-            } 
-            catch (err) {
-                console.error(err.response?.data || err.message);
-            }
+        if (!passwordValidity) {
+            setErrorMessage(invalidPasswordMessages.join(" "));
+            return; 
         }
-    }
+
+        try {
+            const res = await axios.post("http://localhost:3000/auth/register", formData);
+
+            if (res.status === 201) {
+                navigate("/login");
+            }
+        } catch (error) {
+            const msg = error.response?.data?.message || "Something went wrong";
+            setErrorMessage(msg);
+        }
+    };
 
   return (
     // Form element with submit handler
-    <form onSubmit={handleSubmit}>
-            
-        {/* First name input */}
-        <input className="g_form__input" name='firstName' placeholder="First Name" onChange={handleChange} required/>
+    <form onSubmit={handleSubmit} class="g_items-in-a-column">
 
-        {/* Last name input */}
-        <input className="g_form__input" name='lastName' placeholder="Last Name" onChange={handleChange} required/>
+        <div className="g_error-message-container">
+        {errorMessage && (
+            <p className="g_error-message">{errorMessage}</p>
+        )}
+        </div>
 
-        {/* Age input */}
-        <input className="g_form__input" type='number' name='age' min={16} placeholder="Age" onChange={handleChange} required/>
+        {/* First name */}
+        <input 
+            className="g_form__input" 
+            name="firstName" 
+            placeholder="First Name" 
+            onChange={handleChange} 
+            required
+        />
 
-        {/* Email input */}
-        <input className="g_form__input" type='text' name='email' placeholder="Email" onChange={handleChange} required/>
+        {/* Last name */}
+        <input 
+            className="g_form__input" 
+            name="lastName" 
+            placeholder="Last Name" 
+            onChange={handleChange} 
+            required
+        />
 
-        {/* Password input */}
-        <input className="g_form__input" type='password' name='password' placeholder="Password" onChange={handleChange} required/>
-
-        {/* Confirm password input */}
-        <input className="g_form__input" type='password' name='confirmPassword' placeholder="Confirm Password" onChange={handleChange} required/>
-
-        {/* Submit button */}
+        {/* Age */}
+        <input 
+            className="g_form__input" 
+            type="number" 
+            name="age" 
+            min={16} 
+            placeholder="Age" 
+            onChange={handleChange} 
+            required
+        />
+        
+        {/* Email */}
+        <input 
+            className="g_form__input" 
+            type="text"
+            name="email" 
+            placeholder="Email" 
+            onChange={handleChange} 
+            required
+        />
+        
+        {/* Password */}
+        <input 
+            className="g_form__input" 
+            type="password" 
+            name="password" 
+            placeholder="Password" 
+            onChange={handleChange} 
+            required
+        />
+        
+        {/* Confirm password */}
+        <input 
+            className="g_form__input" 
+            type="password" 
+            name="confirmPassword" 
+            placeholder="Confirm Password" 
+            onChange={handleChange} 
+            required
+        />
+        
+        {/* Submit form */}
         <button className="g_form__submit" type="submit">Create Account</button>
     </form>
   )
