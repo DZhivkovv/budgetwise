@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import "./modal.css";
+import "./Modal.css";
 
 /**
  * Reusable Modal component
