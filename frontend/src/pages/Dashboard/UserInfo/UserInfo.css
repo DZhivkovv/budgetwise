@@ -1,0 +1,116 @@
+/* Main container for the user info card */
+.user-info 
+{
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    padding: 16px;              /* Inner spacing */
+    color: #333;              /* Default text color */
+}
+
+/* Small label */
+.user-info__label 
+{
+    font-size: 12px;            /* Small label text */
+    text-transform: uppercase;  /* Makes text uppercase */
+    letter-spacing: 0.5px;      /* Adds spacing between letters */
+    display: block;             /* Forces label to be on its own line */
+    margin-bottom: 4px;         /* Space below label */
+}
+
+/* User name styling */
+.user-info__name {
+    margin: 0 0 20px 0;     /* Space below the name */
+    font-size: 18px;        /* Larger font for emphasis */
+    font-weight: 700;       /* Bold text */
+    color: #1a1a1a;       /* Dark text */
+}
+
+/* Row containing budget-related information */
+.user-info__budget-row 
+{
+    margin-bottom: 12px;    /* Spacing between rows */
+    font-size: 14px;
+    color: #555;          /* Softer gray for secondary info */
+}
+
+/* Container for budget amount and budget edit button */
+.user-info__budget-value-container 
+{
+    display: flex;          /* Align amount and icon horizontally */
+    align-items: center;    /* Vertical alignment */
+    gap: 5px;               /* Space between amount and icon */
+}
+
+/* Budget amount styling */
+.user-info__budget-amount 
+{
+    font-weight: 600;       /* Semi-bold to highlight value */
+}
+
+/* Edit budget button styling */
+.user-info__edit-btn 
+{
+    background: none;           /* Remove default button background */
+    border: none;               /* Remove default border */
+    cursor: pointer;            /* Pointer cursor on hover */
+    padding: 4px;               /* Clickable area */
+    display: flex;              /* Keeps icon centered */
+    align-items: center;
+}
+
+/* Edit icon styling */
+.user-info__edit-icon 
+{
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;               /* Faded faded look */
+}
+
+/* Budget progress bar container */
+.user-info__progress-container 
+{
+    margin-bottom: 20px;        /* Space below progress bar */
+}
+
+/* Budget progress element */
+.user-info__progress-bar 
+{
+    width: 100%;                /* Full width */
+    height: 8px;                /* Slim bar */
+    border-radius: 4px;         /* Rounded edges */
+    overflow: hidden;           /* Inner value respects radius */
+    appearance: none;           /* Removes default browser styling */
+}
+
+/* Background of progress bar (WebKit browsers) */
+.user-info__progress-bar::-webkit-progress-bar {
+    background-color: #eee;     /* Light gray background */
+    border-radius: 4px;
+}
+
+/* Filled portion of progress bar (WebKit browsers) */
+.user-info__progress-bar::-webkit-progress-value 
+{
+    background-color: #2ecc71;  /* Green indicates healthy budget usage */
+    border-radius: 4px;
+}
+
+/* Remaining budget value styling */
+.user-info__remaining-value 
+{
+    font-size: 22px;               /* Large value emphasis */
+    font-weight: 800;              /* Extra bold */
+    color: #2d3436;              /* Dark gray color */
+}
+
+/* Budget period container */
+.user-info__period 
+{
+    margin: 20px 0px;           /* Space above and below */
+}
+
+/* Budget period value  */
+.user-info__period-value 
+{
+    font-weight: 500;           /* Medium emphasis */
+    font-size: 13px;            /* Slightly smaller text */
+}
