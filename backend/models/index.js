@@ -6,12 +6,16 @@ import budgetModel from "./budget.model.js";
 import expenseModel from "./expense.model.js";
 import goalModel from "./goal.model.js";
 
-const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
-  host: dbConfig.HOST,
-  dialect: dbConfig.dialect,
-  port: dbConfig.PORT,
-  pool: dbConfig.pool,
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: "postgres",
+  protocol: "postgres",
   logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  },
 });
 
 const db = {};
