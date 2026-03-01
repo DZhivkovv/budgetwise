@@ -1,35 +1,224 @@
-import useCheckIfUserHasMonthlyBudget from '../../hooks/useCheckIfUserHasMonthlyBudget';
-import BudgetForm from '../../components/BudgetForm';
-import ExpenseForm from '../../components/ExpenseForm';
+import { useEffect, useState, useContext } from "react";
+import { BudgetContext } from "../../context/BudgetContext";
+import { ExpensesContext } from "../../context/ExpensesContext";
+import { AuthContext } from "../../context/AuthContext";
+import { GoalContext } from "../../context/GoalContext";
 
-// A dashboard page for budget and expenses management.
+// Components
+import DashboardActions from "./DashboardActions";
+import UserInfo from "./UserInfo/UserInfo";
+import Calendar from "../../components/Calendar";
+import BudgetForm from "../../components/BudgetForm";
+import ExpenseForm from "../../components/ExpenseForm";
+import GoalForm from "../../components/goals/GoalForm";
+import ActiveGoals from "../../components/goals/ActiveGoals";
+import MonthlyBudgetReminder from "../../components/MonthlyBudgetModal";
+import Modal from "../../components/modal/Modal";
+import Loader from "../../components/Loader";
+
+/**
+ * DashboardPage Component
+ * * The primary authenticated view of the application. It orchestrates user data,
+ * monthly budgeting, expense tracking, and financial goal management.
+ * * Features:
+ * - Automatic budget refresh on mount.
+ * - Monthly budget reminder via session-based check.
+ * - Calendar integration for expense visualization.
+ * - Centralized modal management for various forms (Budget, Expense, Goals).
+ * * @component
+ * @returns {JSX.Element} The rendered dashboard layout or a loader.
+ */
 const DashboardPage = () => {
-  // A custom hook that checks whether the user has a monthly budget or not.
-  // Usage: Depending on the result (the value of hasBudget const), a different form will be rendered on the page.
-  // If the user has budget (const hasBudget is true), a form for editing a budget will be rendered.
-  // If the user has budget (const hasBudget is true), a form for adding a budget will be rendered.
-  const {hasBudget:userHasBudget, budget}  = useCheckIfUserHasMonthlyBudget();    
-  
-  // Budget-related variables:
-  // If the user has a budget, the workmode will be 'Edit' - editing the budget. Otherwise, the budget will be 'Add' - adding a budget.
-  // Decides if form for budget adding or editing will be rendered.
-  const budgetFormWorkmode = !userHasBudget ? 'add' : 'edit';
-  // // If the user has a budget, this variable will contain the budget's amount. Otherwise, the value will be null.
-  const budgetAmount = budget ? budget.amount : null;
-  // // If the user has a budget, this variable will contain the budget's currency. Otherwise, the value will be null.
-  const budgetCurrency = budget ? budget.currency : null;
+  const { user, isLoggedIn, isLoading: authLoading } = useContext(AuthContext);
+  const {
+    budget,
+    isLoading: budgetLoading,
+    refreshBudget,
+  } = useContext(BudgetContext);
 
+  const { expenses, addUserExpense, editUserExpense, deleteUserExpense } =
+    useContext(ExpensesContext);
+  const { goals, addGoal, editGoal, removeGoal } = useContext(GoalContext);
 
+  const userHasBudgetForMonth = !!budget?.budget;
+  // Derived state that determines what mode will the budget form work.
+  // If the user doesn't have a budget, the form will be for adding a budget.
+  // If he does, the form will be for editing that existing budget.
+  const budgetFormMode = userHasBudgetForMonth ? "edit" : "add";
 
-    return (
-    <div>
-      {/* {/* A form for adding/editing a budget (depending on whether the user has a budget) */}
-      <BudgetForm mode={budgetFormWorkmode} budget={budgetAmount} currency={budgetCurrency}/>
+  // Local state
+  const [monthlyReminder, setMonthlyReminder] = useState(null);
+  const [showBudgetForm, setShowBudgetForm] = useState(false);
+  const [showAddExpenseForm, setShowAddExpenseForm] = useState(false);
+  const [showAddGoalForm, setShowAddGoalForm] = useState(false);
+  const [showActiveGoals, setShowActiveGoals] = useState(false);
 
-      {/* If the user has a budget, render a form for adding an expense. */}
-      { userHasBudget && <ExpenseForm mode='add'/> }
+  // Shared state for editing specific items
+  const [expenseData, setExpenseData] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  /**
+   * Generates a string key for the current year and month (YYYY-MM).
+   * @returns {string} Example: "2024-05"
+   */
+  const getCurrentMonthKey = () => new Date().toISOString().slice(0, 7);
+
+  /**
+   * Fetches the monthly budget status from the server to determine
+   * if a "remind" modal should be displayed.
+   * @async
+   * @function checkMonthlyBudget
+   */
+  const checkMonthlyBudget = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/budget/monthly", {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data?.remind) setMonthlyReminder(data);
+    } catch (err) {
+      console.error("Failed to fetch monthly reminder:", err);
+    }
+  };
+
+  /**
+   * Side effect: Handles initial data fetching and monthly reminder logic.
+   * Prevents multiple checks in the same session using sessionStorage.
+   */
+  useEffect(() => {
+    if (authLoading || !isLoggedIn) return;
+
+    // Refresh budget data from server
+    refreshBudget();
+
+    const monthKey = getCurrentMonthKey();
+    const lastCheckedMonth = sessionStorage.getItem("monthlyBudgetChecked");
+
+    // Only trigger the reminder check once per month per session
+    if (lastCheckedMonth !== monthKey) {
+      checkMonthlyBudget();
+      sessionStorage.setItem("monthlyBudgetChecked", monthKey);
+    }
+  }, [authLoading, isLoggedIn, refreshBudget]);
+
+  // Display loader if auth or budget state is still resolving
+  if (authLoading || budgetLoading) return <Loader visibility />;
+
+  return (
+    <div className="dashboard-layout">
+      {/* User Overview Section */}
+      <UserInfo
+        userData={user}
+        budgetData={budget}
+        onIconClick={() => setShowBudgetForm(true)}
+      />
+
+      {/* Interaction Buttons */}
+      <DashboardActions
+        hasBudget={userHasBudgetForMonth}
+        onAddBudgetClick={() => setShowBudgetForm(true)}
+        onAddGoalClick={() => setShowAddGoalForm(true)}
+        onYourGoalsClick={() => setShowActiveGoals(true)}
+        onAddExpenseClick={() => setShowAddExpenseForm(true)}
+      />
+
+      {/* Calendar */}
+      <div className="cell calendar-wrapper" id="calendar">
+        {userHasBudgetForMonth ? (
+          <Calendar
+            onDateClick={(dateStr) => {
+              setSelectedDate(dateStr);
+              setShowAddExpenseForm(true);
+            }}
+            expenses={expenses}
+            onExpenseDataChange={setExpenseData}
+            currency={budget.currency}
+          />
+        ) : (
+          <div className="placeholder">Please, add a monthly budget</div>
+        )}
+      </div>
+
+      {/* Modals */}
+
+      {/* Create/ Edit budget */}
+      {showBudgetForm && (
+        <Modal onClose={() => setShowBudgetForm(false)}>
+          <BudgetForm
+            mode={budgetFormMode}
+            onClose={() => setShowBudgetForm(false)}
+          />
+        </Modal>
+      )}
+
+      {/* Add new expense */}
+      {showAddExpenseForm && (
+        <Modal
+          onClose={() => {
+            setShowAddExpenseForm(false);
+            setSelectedDate(null);
+          }}
+        >
+          <ExpenseForm
+            mode="add"
+            data={{ date: selectedDate }}
+            onSubmit={addUserExpense}
+            onClose={() => {
+              setShowAddExpenseForm(false);
+              setSelectedDate(null);
+            }}
+          />
+        </Modal>
+      )}
+
+      {/* Edit existing expense */}
+      {expenseData && (
+        <Modal onClose={() => setExpenseData(null)}>
+          <ExpenseForm
+            mode="edit"
+            data={expenseData}
+            onSubmit={editUserExpense}
+            onDelete={deleteUserExpense}
+            onClose={() => setExpenseData(null)}
+          />
+        </Modal>
+      )}
+
+      {/* Create new financial goal */}
+      {showAddGoalForm && (
+        <Modal onClose={() => setShowAddGoalForm(false)}>
+          <GoalForm
+            onSubmit={addGoal}
+            onClose={() => setShowAddGoalForm(false)}
+          />
+        </Modal>
+      )}
+
+      {/* List and manage active goals */}
+      {showActiveGoals && (
+        <Modal onClose={() => setShowActiveGoals(false)}>
+          <ActiveGoals goals={goals} onEdit={editGoal} onDelete={removeGoal} />
+        </Modal>
+      )}
+
+      {/* Automated Monthly Budget Prompt */}
+      {monthlyReminder?.remind && (
+        <Modal onClose={() => setMonthlyReminder(null)}>
+          <MonthlyBudgetReminder
+            message={monthlyReminder.message}
+            userHasBudget={userHasBudgetForMonth}
+            onConfirm={() => {
+              setMonthlyReminder(null);
+              // Small delay to allow previous modal to clear before opening form
+              setTimeout(() => setShowBudgetForm(true), 0);
+            }}
+            onClose={() => setMonthlyReminder(null)}
+          />
+        </Modal>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default DashboardPage
+export default DashboardPage;
