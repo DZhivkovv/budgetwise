@@ -71,10 +71,13 @@ const DashboardPage = () => {
    */
   const checkMonthlyBudget = async () => {
     try {
-      const res = await fetch("http://localhost:3000/budget/monthly", {
-        method: "GET",
-        credentials: "include",
-      });
+      const res = await fetch(
+        "https://budgetwise-zv14.onrender.com/budget/monthly",
+        {
+          method: "GET",
+          credentials: "include",
+        },
+      );
       const data = await res.json();
       if (data?.remind) setMonthlyReminder(data);
     } catch (err) {
