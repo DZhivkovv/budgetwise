@@ -14,16 +14,13 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = [
-  "https://budgetwise-sepia.vercel.app",
-  "https://budgetwise-ikuk43rch-dzhivkovvs-projects.vercel.app",
-];
+const allowedOrigins = [process.env.CLIENT_URL];
 
-// Enable CORS for cross-origin requests
+// Enable CORS
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // allow server-to-server requests or Postman
+      if (!origin) return callback(null, true); // allow Postman/server requests
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -45,14 +42,18 @@ app.use("/expense", expenseRoutes);
 app.use("/category", categoryRoutes);
 app.use("/goal", goalRoutes);
 
-// Database connection test
+// Database connection
 db.sequelize
   .authenticate()
   .then(() => console.log("Database connected"))
   .catch((err) => console.error("DB connection error: ", err));
 
+// Dev-only sync
 if (process.env.NODE_ENV === "development") {
-  db.sequelize.sync({ alter: true });
+  db.sequelize
+    .sync({ alter: true })
+    .then(() => console.log("Database synced (dev only)"))
+    .catch((err) => console.error("DB sync error: ", err));
 }
 
 export default app;
