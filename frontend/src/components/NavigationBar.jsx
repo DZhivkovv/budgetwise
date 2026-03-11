@@ -30,7 +30,9 @@ const NavigationBar = () => {
         <nav className={`g_navbar ${isOpen ? 'g_navbar--open' : ''}`}>
             <div className='g_navbar__section'>
                 {/* Logo */}
-                <img src={logo} className="g_logo" alt="Budgetwise" />
+                <NavLink to='/'>
+                    <img src={logo} className="g_logo" alt="Budgetwise" />
+                </NavLink>
 
                 {/* Hamburger button for mobile */}
                 <button
