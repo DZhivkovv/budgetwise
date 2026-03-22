@@ -18,9 +18,9 @@ export async function login(req, res) {
     // Set the JWT in a cookie.
     res.cookie("auth-token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Set to true only in production (HTTPS)
-      sameSite: "none",
-      maxAge: 3600000, // 1 hour
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 3600000,
     });
 
     // Return success response
@@ -85,7 +85,7 @@ export async function logout(req, res) {
     res.clearCookie("auth-token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // match login exactly
     });
 
     // Return success response
@@ -138,7 +138,6 @@ export async function getUserData(req, res) {
     const userId = req.userId;
     // Get the user information by his ID.
     const user = await authService.getUserById(userId);
-
     // Return success response
     return res
       .status(200)
