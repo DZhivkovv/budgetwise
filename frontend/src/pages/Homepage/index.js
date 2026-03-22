@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import useRedirectIfAuthenticated from "../../hooks/useRedirectIfAuthenticated";
 import "./Homepage.css";
+import "../../styles/links_and_buttons.css";
 
 // Data
 const FEATURES = [
