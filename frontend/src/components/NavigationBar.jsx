@@ -31,7 +31,7 @@ const NavigationBar = () => {
             <div className='g_navbar__section'>
                 {/* Logo */}
                 <NavLink to='/'>
-                    <img src={logo} className="g_logo" alt="Budgetwise" />
+                    <img src={logo} className="g_logo" alt="BudgetEye" />
                 </NavLink>
 
                 {/* Hamburger button for mobile */}

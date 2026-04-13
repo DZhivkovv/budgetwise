@@ -42,7 +42,7 @@ const TESTIMONIALS = [
     role: "Freelancer",
   },
   {
-    quote: "I saved €400 in my first month using Budgetwise.",
+    quote: "I saved €400 in my first month using BudgetEye.",
     author: "Stefan R.",
     role: "Software Engineer",
   },
@@ -133,7 +133,7 @@ const CtaSection = () => (
 
 const Footer = () => (
   <footer className="footer">
-    <span className="footer-logo">Budgetwise</span>
+    <span className="footer-logo">BudgetEye</span>
     <span className="footer-copy">
       © {new Date().getFullYear()} All rights reserved.
     </span>
