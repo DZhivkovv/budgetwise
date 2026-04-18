@@ -11,4 +11,17 @@ router.get("/", async (req, res) => {
   return res.status(200).json(categories);
 });
 
+router.post("/", async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    const category = await db.Category.create({ name });
+
+    res.status(201).json(category);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error creating category" });
+  }
+});
+
 export default router;
