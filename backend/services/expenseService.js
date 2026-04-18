@@ -1,8 +1,7 @@
 import db from "../models/index.js";
 import validateExpenseInput from "../utils/validation/validateExpenseInput.js";
-import calculateNextExpenseDate from "../utils/expense/calculateNextExpenseDate.js";
 import getUserBudget from "../utils/budget/getUserBudget.js";
-import { updateGoalProgressFromExpense } from "./goalsService.js";
+import { recalculateActiveGoalForCategory } from "./goalsService.js";
 
 /**
  * Get all expenses for a user, including category and budget currency
@@ -96,13 +95,6 @@ export async function createUserExpense(
 
     budgetForUpdate.remainingBudget -= parsedAmount;
     await budgetForUpdate.save({ transaction });
-    await updateGoalProgressFromExpense(
-      userId,
-      { categoryId, amount: parsedAmount },
-      transaction,
-      GoalModel,
-    );
-
     await transaction.commit();
     return { expense, budget: budgetForUpdate };
   } catch (error) {
@@ -149,7 +141,7 @@ export async function updateUserExpense(
     where: { id: expenseId, userId },
   });
   if (!expense) throw { status: 404, message: "Expense not found." };
-
+  const oldCategoryId = expense.categoryId;
   const expenseDateObj = new Date(date);
   if (
     expenseDateObj < new Date(budget.startDate) ||
@@ -163,7 +155,6 @@ export async function updateUserExpense(
 
   const expenseDiff = parsedAmount - expense.amount;
   const updatedBudget = budget.remainingBudget - expenseDiff;
-
   const transaction = await sequelizeInstance.transaction();
   try {
     // Update expense
@@ -178,10 +169,19 @@ export async function updateUserExpense(
     await expense.save({ transaction });
     await budget.save({ transaction });
 
-    await transaction.commit();
+    // If category changed → recalc old category goal
+    if (oldCategoryId !== categoryId) {
+      await recalculateActiveGoalForCategory(
+        userId,
+        oldCategoryId,
+        transaction,
+      );
+    }
 
+    await transaction.commit();
     return { expense, budget };
   } catch (error) {
+    console.error(error);
     await transaction.rollback();
     throw error;
   }
@@ -221,13 +221,13 @@ export async function deleteUserExpense(
       message: "Expenses can be deleted only for the current budget period.",
     };
   }
+  const expenseCategoryId = expense.categoryId;
 
   const useTransaction = sequelizeInstance.getDialect() !== "sqlite";
   let transaction;
   if (useTransaction) {
     transaction = await sequelizeInstance.transaction();
   }
-
   try {
     budget.remainingBudget =
       Number(budget.remainingBudget) + Number(expense.amount);
