@@ -119,41 +119,6 @@ export async function updateGoal(
   return goal;
 }
 
-export async function updateGoalProgressFromExpense(
-  userId,
-  { categoryId, amount },
-  transaction = null,
-  GoalModel = db.Goal,
-) {
-  // Find active goal for this category
-  const goal = await GoalModel.findOne({
-    where: {
-      userId,
-      categoryId,
-      status: "active",
-    },
-    transaction: transaction || undefined,
-  });
-
-  if (!goal) {
-    return null;
-  }
-
-  const newAmount = Number(goal.currentAmount) + Number(amount);
-  const newStatus =
-    newAmount >= Number(goal.targetAmount) ? "completed" : "active";
-
-  await goal.update(
-    {
-      currentAmount: newAmount,
-      status: newStatus,
-    },
-    transaction ? { transaction } : undefined,
-  );
-
-  return goal;
-}
-
 /**
  * Deletes a goal for a user.
  *
@@ -184,4 +149,76 @@ export async function deleteGoal(
 
   // Delete the goal.
   return goal.destroy(transaction ? { transaction } : undefined);
+}
+
+/**
+ * Recalculates the progress of an active goal based on total expenses within a category.
+ * This function sums all expenses between the goal's creation date and its deadline,
+ * updates the `currentAmount`, and marks spending goals as 'completed' if the target is reached.
+ *
+ * @param {string|number} userId - The unique identifier of the user.
+ * @param {string|number} categoryId - The ID of the expense category to aggregate.
+ * @param {object} [transaction=null] - Optional Sequelize transaction object.
+ * @param {object} [GoalModel=db.Goal] - The Sequelize model for Goals (defaults to db.Goal).
+ * @param {object} [ExpenseModel=db.Expense] - The Sequelize model for Expenses (defaults to db.Expense).
+ * * @returns {Promise<object|null>} The updated Goal instance, or null if no active goal exists.
+ * * @example
+ * const updatedGoal = await recalculateActiveGoalForCategory(user.id, 'groceries', t);
+ */
+export async function recalculateActiveGoalForCategory(
+  userId,
+  categoryId,
+  transaction = null,
+  GoalModel = db.Goal,
+  ExpenseModel = db.Expense,
+) {
+  // Find active user goal with the specified expense category.
+  const goal = await GoalModel.findOne({
+    where: {
+      userId,
+      categoryId,
+      status: "active",
+    },
+    transaction: transaction || undefined,
+  });
+
+  // If there is no such goal, return null.
+  if (!goal) return null;
+  // Format start date for Sequelize's Op.between comparison
+  const startDate = goal.createdAt.toISOString().split("T")[0];
+  // Get the total sum of the expenses.
+  const totalExpenses = await ExpenseModel.sum("amount", {
+    where: {
+      userId,
+      categoryId,
+      date: {
+        [Op.between]: [startDate, goal.deadline],
+      },
+    },
+    transaction: transaction || undefined,
+  });
+  const newCurrentAmount = Number(totalExpenses || 0);
+
+  // Get the goal status.
+  let newStatus = goal.status;
+
+  // If the current spent amount is more than the target, change the goal status to completed.
+  if (
+    goal.type === "spending" &&
+    newCurrentAmount >= Number(goal.targetAmount)
+  ) {
+    newStatus = "completed";
+  }
+
+  // Update the information about the goal
+  await goal.update(
+    {
+      currentAmount: newCurrentAmount,
+      status: newStatus,
+    },
+    transaction ? { transaction } : undefined,
+  );
+
+  // Return the updated goal data.
+  return goal;
 }
