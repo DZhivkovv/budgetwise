@@ -29,12 +29,8 @@ import Loader from "../../components/Loader";
  * @returns {JSX.Element} The rendered dashboard layout or a loader.
  */
 const DashboardPage = () => {
-  const { user, isLoggedIn, isLoading: authLoading } = useContext(AuthContext);
-  const {
-    budget,
-    isLoading: budgetLoading,
-    refreshBudget,
-  } = useContext(BudgetContext);
+  const { user, isLoading: authLoading } = useContext(AuthContext);
+  const { budget, isLoading: budgetLoading } = useContext(BudgetContext);
 
   const { expenses, addUserExpense, editUserExpense, deleteUserExpense } =
     useContext(ExpensesContext);
@@ -56,54 +52,6 @@ const DashboardPage = () => {
   // Shared state for editing specific items
   const [expenseData, setExpenseData] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-
-  /**
-   * Generates a string key for the current year and month (YYYY-MM).
-   * @returns {string} Example: "2024-05"
-   */
-  const getCurrentMonthKey = () => new Date().toISOString().slice(0, 7);
-
-  /**
-   * Fetches the monthly budget status from the server to determine
-   * if a "remind" modal should be displayed.
-   * @async
-   * @function checkMonthlyBudget
-   */
-  const checkMonthlyBudget = async () => {
-    try {
-      const res = await fetch(
-        "https://budgetwise-zv14.onrender.com/budget/monthly",
-        {
-          method: "GET",
-          credentials: "include",
-        },
-      );
-      const data = await res.json();
-      if (data?.remind) setMonthlyReminder(data);
-    } catch (err) {
-      console.error("Failed to fetch monthly reminder:", err);
-    }
-  };
-
-  /**
-   * Side effect: Handles initial data fetching and monthly reminder logic.
-   * Prevents multiple checks in the same session using sessionStorage.
-   */
-  useEffect(() => {
-    if (authLoading || !isLoggedIn) return;
-
-    // Refresh budget data from server
-    refreshBudget();
-
-    const monthKey = getCurrentMonthKey();
-    const lastCheckedMonth = sessionStorage.getItem("monthlyBudgetChecked");
-
-    // Only trigger the reminder check once per month per session
-    if (lastCheckedMonth !== monthKey) {
-      checkMonthlyBudget();
-      sessionStorage.setItem("monthlyBudgetChecked", monthKey);
-    }
-  }, [authLoading, isLoggedIn, refreshBudget]);
 
   // Display loader if auth or budget state is still resolving
   if (authLoading || budgetLoading) return <Loader visibility />;
