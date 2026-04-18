@@ -1,15 +1,12 @@
-import { useEffect, use, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import api from "../api/axiosInstance";
+
 // Custom hook that fetches expense categories
 const useFetchExpenseCategories = () => {
   const [expenseCategories, setExpenseCategories] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("https://budgetwise-zv14.onrender.com/category", {
-        withCredentials: true,
-      })
-      .then((res) => setExpenseCategories(res.data));
+    api.get("/category").then((res) => setExpenseCategories(res.data));
   }, []);
 
   return expenseCategories;
