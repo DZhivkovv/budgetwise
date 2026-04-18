@@ -11,7 +11,7 @@ const LoginForm = () => {
     // A react router dom hook used for in-app navigation
     const navigate = useNavigate();
     // A context that tracks user's authentication state. It is used in this component to change the user's auth state to true on successful login
-    const { login:fetchUserData } = useContext(AuthContext); 
+    const { login:fetchUserData, setAuthManually } = useContext(AuthContext); 
     // State to store email and password input values
     const [formData, setFormData] = useState({
         email: '',
@@ -33,11 +33,11 @@ const LoginForm = () => {
         try
         {
             // Sends POST request to login endpoint with form data
-            const { status } = await login(formData);
+            const response = await login(formData);
             // If the user login is successful:
-            if (status === 200) {
+            if (response.status === 200) {
                 // 1) Mark the user as logged in to restrict the user's access to the login and register page while authenticated.
-                await fetchUserData();
+                setAuthManually(response.data.data);
                 // 2) Redirect to homepage.
                 navigate('/');
             }

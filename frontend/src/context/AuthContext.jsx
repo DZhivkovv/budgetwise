@@ -18,6 +18,12 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
 
+  const setAuthManually = (userData) => {
+    setIsLoggedIn(true);
+    setUser(userData);
+    setIsLoading(false);
+  };
+
   const fetchMe = async () => {
     try 
     {
@@ -92,6 +98,7 @@ export default function AuthProvider({ children }) {
         user,
         error,
         login: fetchMe,
+        setAuthManually,
         register,
         logoutUser,
       }}
