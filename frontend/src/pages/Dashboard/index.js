@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useState, useContext } from "react";
 import { BudgetContext } from "../../context/BudgetContext";
 import { ExpensesContext } from "../../context/ExpensesContext";
 import { AuthContext } from "../../context/AuthContext";
@@ -10,12 +10,12 @@ import UserInfo from "./UserInfo/UserInfo";
 import Calendar from "../../components/Calendar";
 import BudgetForm from "../../components/BudgetForm";
 import ExpenseForm from "../../components/ExpenseForm";
+import ExpenseFilterForm from "../../components/ExpenseFilterForm";
 import GoalForm from "../../components/goals/GoalForm";
 import ActiveGoals from "../../components/goals/ActiveGoals";
 import MonthlyBudgetReminder from "../../components/MonthlyBudgetModal";
 import Modal from "../../components/modal/Modal";
 import Loader from "../../components/Loader";
-
 /**
  * DashboardPage Component
  * * The primary authenticated view of the application. It orchestrates user data,
@@ -29,11 +29,17 @@ import Loader from "../../components/Loader";
  * @returns {JSX.Element} The rendered dashboard layout or a loader.
  */
 const DashboardPage = () => {
+  // Context
   const { user, isLoading: authLoading } = useContext(AuthContext);
   const { budget, isLoading: budgetLoading } = useContext(BudgetContext);
-
-  const { expenses, addUserExpense, editUserExpense, deleteUserExpense } =
-    useContext(ExpensesContext);
+  const {
+    expenses,
+    filtersAreApplied,
+    addUserExpense,
+    editUserExpense,
+    deleteUserExpense,
+    removeFilters,
+  } = useContext(ExpensesContext);
   const { goals, addGoal, editGoal, removeGoal } = useContext(GoalContext);
 
   const userHasBudgetForMonth = !!budget?.budget;
@@ -42,12 +48,13 @@ const DashboardPage = () => {
   // If he does, the form will be for editing that existing budget.
   const budgetFormMode = userHasBudgetForMonth ? "edit" : "add";
 
-  // Local state
+  // State
   const [monthlyReminder, setMonthlyReminder] = useState(null);
   const [showBudgetForm, setShowBudgetForm] = useState(false);
   const [showAddExpenseForm, setShowAddExpenseForm] = useState(false);
   const [showAddGoalForm, setShowAddGoalForm] = useState(false);
   const [showActiveGoals, setShowActiveGoals] = useState(false);
+  const [showFilterExpensesForm, setShowFilterExpensesForm] = useState(false);
 
   // Shared state for editing specific items
   const [expenseData, setExpenseData] = useState(null);
@@ -72,6 +79,9 @@ const DashboardPage = () => {
         onAddGoalClick={() => setShowAddGoalForm(true)}
         onYourGoalsClick={() => setShowActiveGoals(true)}
         onAddExpenseClick={() => setShowAddExpenseForm(true)}
+        onFilterExpensesClick={() => setShowFilterExpensesForm(true)}
+        onResetFiltersClick={async () => await removeFilters()}
+        filtersAreApplied={filtersAreApplied}
       />
 
       {/* Calendar */}
@@ -132,6 +142,21 @@ const DashboardPage = () => {
             onSubmit={editUserExpense}
             onDelete={deleteUserExpense}
             onClose={() => setExpenseData(null)}
+          />
+        </Modal>
+      )}
+
+      {/* Filter expenses */}
+      {showFilterExpensesForm && (
+        <Modal
+          onClose={() => {
+            setShowFilterExpensesForm(false);
+          }}
+        >
+          <ExpenseFilterForm
+            onClose={() => {
+              setShowFilterExpensesForm(false);
+            }}
           />
         </Modal>
       )}
