@@ -27,8 +27,8 @@ const initialFilters = {
         to: null
     },
     price: {
-        min: null,
-        max: null
+        min: "",
+        max: ""
     },
     notes: ""
 };
