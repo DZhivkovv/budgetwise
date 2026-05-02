@@ -11,12 +11,27 @@ export async function getAllUserExpenses(req, res) {
   try {
     // Get the user ID from the request
     const userId = req.userId;
-    // Call a service layer function to fetch all user expenses
-    const expenses = await expenseService.fetchAllUserExpenses(userId);
+    // Expense filters
+    const filters = req.query;
+    // User expenses
+    let expenses;
+
+    // If there are no filters applied, fetch all expenses that belong to the authenticated user.
+    if (Object.keys(filters).length === 0) {
+      // No expense filters are applied.
+
+      // Call a service layer function to fetch all user expenses
+      expenses = await expenseService.fetchAllUserExpenses(userId);
+    } else {
+      // Expense filters are applied.
+      // Call a service layer fuction to fetch the filtered user expenses.
+      expenses = await expenseService.filterExpenses(userId, filters);
+    }
 
     // Return success response
     return res.status(200).json({ success: true, expenses });
   } catch (error) {
+    console.error(error);
     // Error handling for unexpected database or server issues
     return res
       .status(500)
