@@ -1,19 +1,23 @@
 import { useState } from "react";
 import { useContext } from "react";
 import { ExpensesContext } from "../context/ExpensesContext";
-import { filterExpenses } from "../services/expenseService";
 
+/**
+ * Custom hook for handling expense filtering logic.
+ * Manages filter state updates, validation, and submitting filters.
+ */
 export default function useFilterExpenses() {
   const { filters, setFilters, fetchExpenses } = useContext(ExpensesContext);
 
-  // Error state
+  // Local error state for validation messages
   const [error, setError] = useState("");
 
-  // Handler function for input change
+  /* Handles all filter input changes (checkboxes, dates, price, notes). */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     setFilters((prev) => {
+      // Handle category checkbox toggle
       if (type === "checkbox") {
         const id = Number(name);
 
@@ -25,6 +29,7 @@ export default function useFilterExpenses() {
         };
       }
 
+      // Handle date range updates
       if (name === "from" || name === "to") {
         return {
           ...prev,
@@ -32,6 +37,7 @@ export default function useFilterExpenses() {
         };
       }
 
+      // Handle price range updates
       if (name === "min" || name === "max") {
         return {
           ...prev,
@@ -39,6 +45,7 @@ export default function useFilterExpenses() {
         };
       }
 
+      // Default case: notes input
       return {
         ...prev,
         notes: value,
@@ -46,31 +53,37 @@ export default function useFilterExpenses() {
     });
   };
 
-  // Filter submission
+  /* Validates filters and triggers API fetch. Ensures date and price ranges are logically correct.*/
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
+    // Validate date range
     const from = filters.date.from;
     const to = filters.date.to;
 
-    if (from && to && new Date(from) > new Date(to)) {
-      setError("Invalid date range");
-      return false;
-    }
+    if (from && to) {
+      const fromDate = new Date(from);
+      const toDate = new Date(to);
 
-    const min = Number(filters.price.min);
-    const max = Number(filters.price.max);
-
-    if (min && max) {
-      if (!isNaN(min) && !isNaN(max)) {
-        if (min > max) {
-          setError("Invalid price range");
-          return false;
-        }
+      if (fromDate > toDate) {
+        setError("Invalid date range");
+        return false;
       }
     }
 
+    // Validate price range
+    const minVal = filters.price.min;
+    const maxVal = filters.price.max;
+
+    if (minVal !== "" && maxVal !== "") {
+      if (Number(minVal) > Number(maxVal)) {
+        setError("Invalid price range");
+        return false;
+      }
+    }
+
+    // Fetch filtered expenses
     await fetchExpenses(filters);
     return true;
   };
