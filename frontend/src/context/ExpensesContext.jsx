@@ -1,11 +1,14 @@
 import { useState, useEffect, createContext, useContext } from 'react'
 import { getAllUserExpenses, addExpense, editExpense, deleteExpense } from '../services/expenseService';
-
 import { AuthContext } from './AuthContext';
 import { BudgetContext } from './BudgetContext';
 
+import buildQueryParams from '../utils/buildQueryParams';
+import { filterExpenses } from '../services/expenseService';
+
 export const ExpensesContext = createContext({
     expenses: [],
+    filters: {},
     loading: false,
     error: null,
     fetchExpenses: () => {},
@@ -13,159 +16,167 @@ export const ExpensesContext = createContext({
     editUserExpense: () => {},
     deleteUserExpense: () => {}, 
     resetExpenses: () => {},
+    removeFilters: () => {},
 });
 
+// Initial expense filters
+const initialFilters = {
+    categories: [],
+    date: {
+        from: null,
+        to: null
+    },
+    price: {
+        min: null,
+        max: null
+    },
+    notes: ""
+};
+
+// Checks if filters are applied
+const hasActiveFilters = (filters) => {
+    return Boolean(
+        filters.categories.length > 0 ||
+        filters.date.from ||
+        filters.date.to ||
+        filters.price.min ||
+        filters.price.max ||
+        filters.notes.trim() !== ""
+    );
+};
+
 export default function ExpensesProvider({children}) {
-    // User data
+    // Contexts
     const { user, isLoading: authLoading } = useContext(AuthContext);
     const { refreshBudget } = useContext(BudgetContext);
 
-    // States:
+    // State
     const [expenses, setExpenses] = useState([]);
+    const [filters, setFilters] = useState(initialFilters);
+    const [filtersAreApplied, setFiltersAreApplied] = useState(false);
+    console.log(filtersAreApplied);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    
+
+
+    // Reset expenses
     const resetExpenses = () => {
         setExpenses([]);
     };
 
-    // Fetch all user expenses. (Centralized Loading/Error handling)
-    const fetchExpenses = async () => {
-        setIsLoading(true);
-        setError(null); // Clear previous errors
+    // Fetch expenses
+    const fetchExpenses = async (filter = null) => {
+        setIsLoading(true); // Loading started
+        setError(null);     // Clear errors        
+
         try
         {
-            // Fetch the expenses and set them as a state.
-            const { data } = await getAllUserExpenses();
+            // Check if filters are applied and set state accordingly
+            const activeFilters = filter || filters;
+            setFiltersAreApplied(hasActiveFilters(activeFilters));
+            
+            // Get filtered or all expenses depending on whether filters are applied
+            const params = buildQueryParams(activeFilters);
+            const { data } = await filterExpenses(params);
             setExpenses(data.expenses);
         }
         catch (error) 
         {
-            // Set error
+            // Set and throw error
             setError(error);
+            throw error;
         }
         finally
         {
-            setIsLoading(false);
+            setIsLoading(false); // Loading ended
         }
     };
 
-    // Add an expense.    
+    // Add expense    
     const addUserExpense = async(data) => {
-        setIsLoading(true);
+        setIsLoading(true); // Loading
         try 
         {
-            await addExpense(data);
-            // Refetch expenses if adding the expense is successful.
-            await fetchExpenses();
-            // Refresh budget if adding the expense is successful.
-            await refreshBudget(); 
+            await addExpense(data); // Add expense
+            await fetchExpenses();  // Refetch expenses
+            await refreshBudget();  // Refresh budget 
         } 
         catch (error) 
         {
-            // If the adding expense fails, reset loading and set error.
-            setIsLoading(false); 
+            // Set and throw error
             setError(error);
             throw error;
+        }
+        finally
+        {
+            setIsLoading(false); // Loading ended
         }
     }
 
     // Edit an expense
     const editUserExpense = async(data) => {
-        setIsLoading(true);
+        setIsLoading(true); // Loading started
         try
         {
-            // Edit the expense
-            await editExpense(data); 
-            // Refetch expenses if the editing is successful.
-            await fetchExpenses(); 
-            // Refresh budget if adding the expense is successful.
-            await refreshBudget(); 
+            await editExpense(data); // Edit the expense
+            await fetchExpenses();   // Refetch expenses
+            await refreshBudget();   // Refresh budget 
         }
         catch (error)
         {
-            // If editing the expense fails, reset loading and set error.
-            setIsLoading(false); 
+            // Set and throw error
             setError(error)
             throw error;
         }
+        finally
+        {
+            setIsLoading(false); // Loading ended
+        }
     }
 
-    // Deleting an expense.
+    // Delete expense.
     const deleteUserExpense = async(id, data) => {
-        setIsLoading(true);
+        setIsLoading(true); // Loading started
+
         try
         {
-            // Deleting the expense.
-            await deleteExpense(id); 
-            // Refetch expenses if the deletion is successful.
-            await fetchExpenses(); 
-            // Refresh budget if adding the expense is successful.
-            await refreshBudget(); 
+            await deleteExpense(id); // Delete expense
+            await fetchExpenses();   // Refetch expenses
+            await refreshBudget();   // Refresh budget
+
         }
         catch (error)
         {
-            // If deleting the expense fails, reset loading and set error.
-            setError(error)
-            setIsLoading(false); 
+            // Set and throw error
+            setError(error); // Set error
+            throw error
+        }
+        finally
+        {
+            setIsLoading(false); // Loading ended
         }
     }
-    
-    // Initial fetch of expenses and re-fetch when user/auth state changes
+
+    // Remove filters.
+    const removeFilters = async() => {
+        // Remove filters
+        setFilters(initialFilters);
+        // Fetch all expenses
+        await fetchExpenses(initialFilters);
+    }
+
     useEffect(() => {
         if (authLoading) return;
-        
-        if (!user) {
-            resetExpenses();
-            setError(null);
-            setIsLoading(false);
-            return;
-        }
-
-        // Use a flag to prevent state updates if the component unmounts
-        let isMounted = true; 
-        
-        const initialFetch = async () => {
-            // Only set loading/error states if component is still mounted
-            if (isMounted) setIsLoading(true);
-            
-            try 
-            {
-                const {data} = await getAllUserExpenses();
-                if (isMounted) 
-                {
-                    // Check for nested data structure access based on your service structure
-                    setExpenses(data.expenses);
-                    setError(null);
-                }
-            } 
-            catch (error) 
-            {
-                if (isMounted) 
-                {
-                    setError(error);
-                }
-            } 
-            finally 
-            {
-                if (isMounted) 
-                {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        initialFetch();
-
-        // Cleanup function to prevent state updates on an unmounted component
-        return () => {
-            isMounted = false;
-        };
-    }, [user, authLoading]); // Dependencies ensure this runs when user/auth state changes
+        if (!user) return;
+        fetchExpenses();
+    }, [user]);
 
     return (
         <ExpensesContext.Provider value={{ 
             expenses, 
+            filters,
+            filtersAreApplied,
+            setFilters,
             isLoading, 
             error, 
             fetchExpenses,
@@ -173,6 +184,7 @@ export default function ExpensesProvider({children}) {
             editUserExpense, 
             deleteUserExpense,
             resetExpenses, 
+            removeFilters
         }}>
             {children}
         </ExpensesContext.Provider>
