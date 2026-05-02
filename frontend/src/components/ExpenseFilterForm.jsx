@@ -68,7 +68,7 @@ const ExpenseFilterForm = ({onClose}) => {
                     <input
                         type='number' 
                         name='min' 
-                        value={filters.price.min || ""} 
+                        value={filters.price.min} 
                         onChange={handleChange}
                         className="g_form__input"
                     />
@@ -80,7 +80,7 @@ const ExpenseFilterForm = ({onClose}) => {
                     <input 
                         type='number' 
                         name='max' 
-                        value={filters.price.max || ""} 
+                        value={filters.price.max} 
                         onChange={handleChange}
                         className="g_form__input"
                     />
