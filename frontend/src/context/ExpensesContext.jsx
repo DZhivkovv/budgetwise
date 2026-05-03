@@ -54,7 +54,6 @@ export default function ExpensesProvider({children}) {
     const [expenses, setExpenses] = useState([]);
     const [filters, setFilters] = useState(initialFilters);
     const [filtersAreApplied, setFiltersAreApplied] = useState(false);
-    console.log(filtersAreApplied);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
